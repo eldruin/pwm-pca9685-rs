@@ -147,40 +147,32 @@ impl Default for Config {
 
 /// PCA9685 PWV/Servo/LED driver
 #[derive(Debug, Default)]
-pub struct Pca9685<DI> {
-    iface: DI,
+pub struct Pca9685<I2C> {
+    /// The concrete I²C device implementation.
+    i2c: I2C,
+    /// The I²C device address.
+    address: u8,
+    /// Current device configuration.
     config: Config,
 }
 
-#[doc(hidden)]
-pub mod interface;
-
-impl<I2C, E> Pca9685<interface::I2cInterface<I2C>>
+impl<I2C, E> Pca9685<I2C>
 where
     I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
         Pca9685 {
-            iface: interface::I2cInterface {
-                i2c,
-                address: address.addr(DEVICE_BASE_ADDRESS),
-            },
+            i2c,
+            address: address.addr(DEVICE_BASE_ADDRESS),
             config: Config::default(),
         }
     }
 
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
-        self.iface.i2c
+        self.i2c
     }
-}
-
-mod private {
-    use super::interface;
-    pub trait Sealed {}
-
-    impl<I2C> Sealed for interface::I2cInterface<I2C> {}
 }
 
 #[cfg(test)]
