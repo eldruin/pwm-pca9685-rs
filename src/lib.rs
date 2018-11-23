@@ -158,7 +158,7 @@ pub struct Pca9685<I2C> {
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+    I2C: hal::blocking::i2c::Write<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
