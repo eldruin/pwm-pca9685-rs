@@ -96,7 +96,7 @@ impl From<BitFlagMode2> for BitFlag {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Config {
     mode1: u8,
     mode2: u8
@@ -145,7 +145,7 @@ impl Default for Config {
     }
 }
 
-/// PCA9685 PWV/Servo/LED driver
+/// PCA9685 PWM/Servo/LED controller.
 #[derive(Debug, Default)]
 pub struct Pca9685<I2C> {
     /// The concrete I²C device implementation.
@@ -172,6 +172,26 @@ where
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
         self.i2c
+    }
+
+    /// Enable the controller.
+    pub fn enable(&mut self) -> Result<(), Error<E>> {
+        let config = self.config;
+        self.write_mode1(config.with_low(BitFlagMode1::SLEEP))
+    }
+
+    /// Disable the controller (sleep).
+    pub fn disable(&mut self) -> Result<(), Error<E>> {
+        let config = self.config;
+        self.write_mode1(config.with_high(BitFlagMode1::SLEEP))
+    }
+
+    fn write_mode1(&mut self, config: Config) -> Result<(), Error<E>> {
+        self.i2c
+            .write(self.address, &[Register::MODE1, config.mode1])
+            .map_err(Error::I2C)?;
+        self.config.mode1 = config.mode1;
+        Ok(())
     }
 }
 
