@@ -1,0 +1,35 @@
+[package]
+name = "pwm-pca9685"
+version = "0.1.0"
+authors = ["Diego Barrios Romero <eldruin@gmail.com>"]
+repository = "https://github.com/eldruin/pwm-pca9685-rs"
+license = "MIT OR Apache-2.0"
+description = "Platform-agnostic Rust driver for the PCA9685 I2C 16-channel, 12-bit PWM/Servo/LED controller."
+readme = "README.md"
+keywords = ["pwm", "servo", "led", "driver", "embedded-hal-driver"]
+categories = ["embedded", "hardware-support", "no-std"]
+homepage = "https://github.com/eldruin/pwm-pca9685-rs"
+documentation = "https://docs.rs/pwm-pca9685"
+include = [
+    "**/*.rs",
+    "/Cargo.toml",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE-MIT",
+    "/LICENSE-APACHE",
+]
+
+[badges]
+travis-ci = { repository = "eldruin/pwm-pca9685-rs", branch = "master" }
+coveralls = { repository = "eldruin/pwm-pca9685-rs", branch = "master", service = "github" }
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+embedded-hal = "0.2"
+
+[dev-dependencies]
+linux-embedded-hal = "0.2"
+embedded-hal-mock = "0.4"
+
+[profile.release]
+lto = true
