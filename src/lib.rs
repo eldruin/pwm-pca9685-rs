@@ -26,6 +26,8 @@ extern crate embedded_hal as hal;
 pub enum Error<E> {
     /// I²C bus error
     I2C(E),
+    /// Invalid input data provided
+    InvalidInputData,
 }
 
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
@@ -65,7 +67,9 @@ impl SlaveAddr {
 struct Register;
 
 impl Register {
-    const MODE1 : u8 = 0x00;
+    const MODE1        : u8 = 0x00;
+    const ALL_LED_ON_L : u8 = 0xFA;
+    const ALL_LED_OFF_L: u8 = 0xFC;
 }
 
 enum BitFlag {
@@ -74,9 +78,10 @@ enum BitFlag {
 }
 
 enum BitFlagMode1 {
-    EXTCLK  = 0b0100_0000,
-    SLEEP   = 0b0001_0000,
-    ALLCALL = 0b0000_0001,
+    EXTCLK   = 0b0100_0000,
+    AUTO_INC = 0b0010_0000,
+    SLEEP    = 0b0001_0000,
+    ALLCALL  = 0b0000_0001,
 }
 
 enum BitFlagMode2 {
@@ -108,6 +113,10 @@ impl Config {
             BitFlag::Mode1(mask) => (self.mode1 & (mask as u8)) != 0,
             BitFlag::Mode2(mask) => (self.mode2 & (mask as u8)) != 0,
         }
+    }
+
+    fn is_low<BF: Into<BitFlag>>(&self, bf: BF) -> bool {
+        !self.is_high(bf)
     }
 
     fn with_high<BF: Into<BitFlag>>(&self, bf: BF) -> Self {
@@ -186,12 +195,39 @@ where
         self.write_mode1(config.with_high(BitFlagMode1::SLEEP))
     }
 
+    /// Set the `ON` counter for all channels.
+    pub fn set_all_channels_on(&mut self, value: u16) -> Result<(), Error<E>> {
+        if value > 4095 {
+            return Err(Error::InvalidInputData);
+        }
+        self.write_double_register(Register::ALL_LED_ON_L, value)
+    }
+
+    /// Set the `OFF` counter for all channels.
+    pub fn set_all_channels_off(&mut self, value: u16) -> Result<(), Error<E>> {
+        if value > 4095 {
+            return Err(Error::InvalidInputData);
+        }
+        self.write_double_register(Register::ALL_LED_OFF_L, value)
+    }
+
+
     fn write_mode1(&mut self, config: Config) -> Result<(), Error<E>> {
         self.i2c
             .write(self.address, &[Register::MODE1, config.mode1])
             .map_err(Error::I2C)?;
         self.config.mode1 = config.mode1;
         Ok(())
+    }
+
+    fn write_double_register(&mut self, address: u8, value: u16) -> Result<(), Error<E>> {
+        if self.config.is_low(BitFlagMode1::AUTO_INC) {
+            let config = self.config;
+            self.write_mode1(config.with_high(BitFlagMode1::AUTO_INC))?;
+        }
+        self.i2c
+            .write(self.address, &[address, value as u8, (value >> 8) as u8])
+            .map_err(Error::I2C)
     }
 }
 
