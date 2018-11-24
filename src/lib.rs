@@ -305,7 +305,7 @@ where
 
     /// Set the channel always on.
     ///
-    /// The turning on time is given by the value argument.
+    /// The turning on is delayed by the value argument.
     pub fn set_channel_full_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
@@ -321,7 +321,8 @@ where
 
     /// Set the channel always off.
     ///
-    /// This takes precedence over the `on` settings.
+    /// This takes precedence over the `on` settings and can be cleared by setting
+    /// the `off` counter with [`set_channel_off`](struct.Pca9685.html#method.set_channel_off).
     pub fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
         let value = 0b0001_0000_0000_0000;
         impl_channel_match!(
