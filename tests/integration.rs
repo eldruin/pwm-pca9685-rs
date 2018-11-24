@@ -135,7 +135,19 @@ macro_rules! channels_test {
                 use super::*;
                 #[test]
 
-                fn can_set_channel_on() {
+                fn can_set_channel_on_min() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 0, 0])
+                    ];
+                    let mut pwm = new(&trans);
+                    pwm.set_channel_on(Channel::$channel, 0).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+
+                fn can_set_channel_on_max() {
                     let trans = [
                         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
                         I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 0b1111_1111, 0b0000_1111])
@@ -146,7 +158,18 @@ macro_rules! channels_test {
                 }
 
                 #[test]
-                fn can_set_channel_off() {
+                fn can_set_channel_off_min() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_off, 0, 0])
+                    ];
+                    let mut pwm = new(&trans);
+                    pwm.set_channel_off(Channel::$channel, 0).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+                fn can_set_channel_off_max() {
                     let trans = [
                         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
                         I2cTrans::write(DEV_ADDR, vec![Register::$reg_off, 0b1111_1111, 0b0000_1111])
