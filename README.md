@@ -20,10 +20,29 @@ This driver allows you to:
 
 ## The device
 
-TODO
+This device is an I2C-bus controlled 16-channel, 12-bit PWM controller.
+Its outputs can be used to control servo motors or LEDs, for example.
+
+Each channel output has its own 12-bit resolution (4096 steps) fixed
+frequency individual PWM controller that operates at a programmable
+frequency from a typical of 24 Hz to 1526 Hz with a duty cycle that is
+adjustable from 0% to 100%.
+All outputs are set to the same PWM frequency.
+
+Each channel output can be off or on (no PWM control), or set at its
+individual PWM controller value. The output driver is programmed to be
+either open-drain with a 25 mA current sink capability at 5 V or totem pole
+with a 25 mA sink, 10 mA source capability at 5 V. The PCA9685 operates
+with a supply voltage range of 2.3 V to 5.5 V and the inputs and outputs
+are 5.5 V tolerant. LEDs can be directly connected to the outputs (up to
+25 mA, 5.5 V) or controlled with external drivers and a minimum amount of
+discrete components for larger current, higher voltage LEDs, etc.
+It is optimized to be used as an LED controller for Red/Green/Blue/Amber
+(RGBA) color backlighting applications.
 
 Datasheet:
 - [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
+
 
 ## Usage
 
