@@ -333,6 +333,17 @@ where
             C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
     }
 
+    /// Enable using the EXTCLK pin as clock source input.
+    ///
+    /// This setting is _sticky_. It can only be cleared by a power cycle or
+    /// a software reset.
+    pub fn use_external_clock(&mut self) -> Result<(), Error<E>> {
+        let config = self.config;
+        self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
+        let config = self.config;
+        self.write_mode1(config.with_high(BitFlagMode1::ExtClk))
+    }
+
     fn write_mode1(&mut self, config: Config) -> Result<(), Error<E>> {
         self.i2c
             .write(self.address, &[Register::MODE1, config.mode1])

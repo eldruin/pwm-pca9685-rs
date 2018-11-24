@@ -100,6 +100,15 @@ fn can_disable() {
 }
 
 #[test]
+fn can_use_external_clock() {
+    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT]),
+                 I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT | BitFlagMode1::ExtClk as u8])];
+    let mut pwm = new(&trans);
+    pwm.use_external_clock().unwrap();
+    destroy(pwm);
+}
+
+#[test]
 fn cannot_set_channel_on_invalid_value() {
     let mut pwm = new(&[]);
     assert_invalid_input_data(pwm.set_channel_on(Channel::C0, 4096));
