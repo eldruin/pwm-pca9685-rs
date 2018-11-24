@@ -30,6 +30,45 @@ pub enum Error<E> {
     InvalidInputData,
 }
 
+/// Output channel selection
+#[derive(Debug, Clone, Copy)]
+pub enum Channel {
+    /// Channel 0
+    C0,
+    /// Channel 1
+    C1,
+    /// Channel 2
+    C2,
+    /// Channel 3
+    C3,
+    /// Channel 4
+    C4,
+    /// Channel 5
+    C5,
+    /// Channel 6
+    C6,
+    /// Channel 7
+    C7,
+    /// Channel 8
+    C8,
+    /// Channel 9
+    C9,
+    /// Channel 10
+    C10,
+    /// Channel 11
+    C11,
+    /// Channel 12
+    C12,
+    /// Channel 13
+    C13,
+    /// Channel 14
+    C14,
+    /// Channel 15
+    C15,
+    /// All channels
+    All,
+}
+
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 
@@ -67,9 +106,41 @@ impl SlaveAddr {
 struct Register;
 
 impl Register {
-    const MODE1        : u8 = 0x00;
-    const ALL_LED_ON_L : u8 = 0xFA;
-    const ALL_LED_OFF_L: u8 = 0xFC;
+    const MODE1      : u8 = 0x00;
+    const C0_ON_L    : u8 = 0x06;
+    const C0_OFF_L   : u8 = 0x08;
+    const C1_ON_L    : u8 = 0x0A;
+    const C1_OFF_L   : u8 = 0x0C;
+    const C2_ON_L    : u8 = 0x0E;
+    const C2_OFF_L   : u8 = 0x10;
+    const C3_ON_L    : u8 = 0x12;
+    const C3_OFF_L   : u8 = 0x14;
+    const C4_ON_L    : u8 = 0x16;
+    const C4_OFF_L   : u8 = 0x18;
+    const C5_ON_L    : u8 = 0x1A;
+    const C5_OFF_L   : u8 = 0x1C;
+    const C6_ON_L    : u8 = 0x1E;
+    const C6_OFF_L   : u8 = 0x20;
+    const C7_ON_L    : u8 = 0x22;
+    const C7_OFF_L   : u8 = 0x24;
+    const C8_ON_L    : u8 = 0x26;
+    const C8_OFF_L   : u8 = 0x28;
+    const C9_ON_L    : u8 = 0x2A;
+    const C9_OFF_L   : u8 = 0x2C;
+    const C10_ON_L   : u8 = 0x2E;
+    const C10_OFF_L  : u8 = 0x30;
+    const C11_ON_L   : u8 = 0x32;
+    const C11_OFF_L  : u8 = 0x34;
+    const C12_ON_L   : u8 = 0x36;
+    const C12_OFF_L  : u8 = 0x38;
+    const C13_ON_L   : u8 = 0x3A;
+    const C13_OFF_L  : u8 = 0x3C;
+    const C14_ON_L   : u8 = 0x3E;
+    const C14_OFF_L  : u8 = 0x40;
+    const C15_ON_L   : u8 = 0x42;
+    const C15_OFF_L  : u8 = 0x44;
+    const ALL_C_ON_L : u8 = 0xFA;
+    const ALL_C_OFF_L: u8 = 0xFC;
 }
 
 enum BitFlag {
@@ -165,6 +236,16 @@ pub struct Pca9685<I2C> {
     config: Config,
 }
 
+macro_rules! impl_channel_match {
+    ($s:ident, $channel:expr, $value:expr, $($C:ident, $reg:ident),*) => {
+        match $channel {
+            $(
+                Channel::$C  => $s.write_double_register(Register::$reg, $value),
+            )*
+        }
+    };
+}
+
 impl<I2C, E> Pca9685<I2C>
 where
     I2C: hal::blocking::i2c::Write<Error = E>,
@@ -195,20 +276,32 @@ where
         self.write_mode1(config.with_high(BitFlagMode1::SLEEP))
     }
 
-    /// Set the `ON` counter for all channels.
-    pub fn set_all_channels_on(&mut self, value: u16) -> Result<(), Error<E>> {
+
+    /// Set the `ON` counter for the selected channel.
+    pub fn set_channel_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
-        self.write_double_register(Register::ALL_LED_ON_L, value)
+        impl_channel_match!(
+            self, channel, value,
+            C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
+            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L,
+            C10, C10_ON_L, C11, C11_ON_L, C12, C12_ON_L, C13, C13_ON_L,
+            C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
     }
 
-    /// Set the `OFF` counter for all channels.
-    pub fn set_all_channels_off(&mut self, value: u16) -> Result<(), Error<E>> {
+    /// Set the `OFF` counter for the selected channel.
+    pub fn set_channel_off(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
-        self.write_double_register(Register::ALL_LED_OFF_L, value)
+        impl_channel_match!(
+            self, channel, value,
+            C0, C0_OFF_L, C1, C1_OFF_L, C2, C2_OFF_L, C3, C3_OFF_L,
+            C4, C4_OFF_L, C5, C5_OFF_L, C6, C6_OFF_L, C7, C7_OFF_L,
+            C8, C8_OFF_L, C9, C9_OFF_L, C10, C10_OFF_L, C11, C11_OFF_L,
+            C12, C12_OFF_L, C13, C13_OFF_L, C14, C14_OFF_L,
+            C15, C15_OFF_L, All, ALL_C_OFF_L)
     }
 
 
