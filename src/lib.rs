@@ -175,7 +175,7 @@ impl From<BitFlagMode2> for BitFlag {
 #[derive(Debug, Clone, Copy)]
 struct Config {
     mode1: u8,
-    mode2: u8
+    mode2: u8,
 }
 
 impl Config {
@@ -194,24 +194,24 @@ impl Config {
         match bf.into() {
             BitFlag::Mode1(mask) => Config {
                 mode1: self.mode1 | (mask as u8),
-                mode2: self.mode2
+                mode2: self.mode2,
             },
             BitFlag::Mode2(mask) => Config {
                 mode1: self.mode1,
                 mode2: self.mode2 | (mask as u8),
-            }
+            },
         }
     }
     fn with_low<BF: Into<BitFlag>>(&self, bf: BF) -> Self {
         match bf.into() {
             BitFlag::Mode1(mask) => Config {
                 mode1: self.mode1 & !(mask as u8),
-                mode2: self.mode2
+                mode2: self.mode2,
             },
             BitFlag::Mode2(mask) => Config {
                 mode1: self.mode1,
                 mode2: self.mode2 & !(mask as u8),
-            }
+            },
         }
     }
 }
@@ -220,7 +220,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             mode1: (BitFlagMode1::SLEEP as u8) | (BitFlagMode1::ALLCALL as u8),
-            mode2: BitFlagMode2::OUTDRV as u8
+            mode2: BitFlagMode2::OUTDRV as u8,
         }
     }
 }
@@ -275,7 +275,6 @@ where
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::SLEEP))
     }
-
 
     /// Set the `ON` counter for the selected channel.
     pub fn set_channel_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {

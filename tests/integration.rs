@@ -92,7 +92,6 @@ fn can_enable() {
     destroy(pwm);
 }
 
-
 #[test]
 fn can_disable() {
     let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT])];
@@ -127,7 +126,6 @@ fn sets_autoincrement_just_once() {
     pwm.set_channel_on(Channel::All, 4095).unwrap();
     destroy(pwm);
 }
-
 
 macro_rules! channels_test {
     ($($channel:ident, $reg_on:ident, $reg_off:ident),*) => {
