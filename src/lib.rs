@@ -7,12 +7,14 @@
 //! - Enable/disable the device. See [`enable()`].
 //! - Set the _on_ and _off_ counter for a channel or all of them. See [`set_channel_on()`].
 //! - Set a channel to be always on or off. See [`set_channel_full_on()`].
+//! - Set the prescale value. See [`set_prescale()`].
 //! - Select the output logic state direct or inverted. See [`set_output_logic_state()`].
 //! - Select the EXTCLK pin as clock source. See [`use_external_clock()`].
 //!
 //! [`enable()`]: struct.Pca9685.html#method.enable
 //! [`set_channel_on()`]: struct.Pca9685.html#method.set_channel_on
 //! [`set_channel_full_on()`]: struct.Pca9685.html#method.set_channel_full_on
+//! [`set_prescale()`]: struct.Pca9685.html#method.set_prescale
 //! [`set_output_logic_state()`]: struct.Pca9685.html#method.set_output_logic_state
 //! [`use_external_clock()`]: struct.Pca9685.html#method.use_external_clock
 //!
@@ -181,6 +183,7 @@ impl Register {
     const C15_OFF_L  : u8 = 0x44;
     const ALL_C_ON_L : u8 = 0xFA;
     const ALL_C_OFF_L: u8 = 0xFC;
+    const PRE_SCALE  : u8 = 0xFE;
 }
 
 enum BitFlag {
@@ -393,6 +396,39 @@ where
         self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::ExtClk))
+    }
+
+    /// Set the prescale value.
+    ///
+    /// The prescale value can be calculated for an update rate with the formula:
+    /// `prescale_value = round(osc_value / (4096 * update_rate)) - 1`
+    ///
+    /// The minimum prescale value is 3, which corresonds to an update rate of
+    /// 1526 Hz. The maximum prescale value is 255, which corresponds to an
+    /// update rate of 24 Hz.
+    ///
+    /// Internally this function stops the oscillator and restarts it after
+    /// setting the prescale value if it was running
+    pub fn set_prescale(&mut self, prescale: u8) -> Result<(), Error<E>> {
+        if prescale < 3 {
+            return Err(Error::InvalidInputData);
+        }
+        let config = self.config;
+        let was_oscillator_running = config.is_low(BitFlagMode1::Sleep);
+        if was_oscillator_running {
+            // stop the oscillator
+            self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
+        }
+
+        self.i2c
+            .write(self.address, &[Register::PRE_SCALE, prescale])
+            .map_err(Error::I2C)?;
+
+        if was_oscillator_running {
+            // restart the oscillator
+            self.write_mode1(config)?;
+        }
+        Ok(())
     }
 
     /// Reset the internal state of this driver to the default values.

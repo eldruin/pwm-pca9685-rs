@@ -46,6 +46,7 @@ impl Register {
     const C15_OFF_L  : u8 = 0x44;
     const ALL_C_ON_L : u8 = 0xFA;
     const ALL_C_OFF_L: u8 = 0xFC;
+    const PRE_SCALE  : u8 = 0xFE;
 }
 
 enum BitFlagMode1 {
@@ -114,6 +115,37 @@ fn can_use_external_clock() {
                  I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT | BitFlagMode1::ExtClk as u8])];
     let mut pwm = new(&trans);
     pwm.use_external_clock().unwrap();
+    destroy(pwm);
+}
+
+
+#[test]
+fn cannot_set_prescale_too_small() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_prescale(2));
+    destroy(pwm);
+}
+
+
+#[test]
+fn can_set_prescale() {
+    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::PRE_SCALE, 3])];
+    let mut pwm = new(&trans);
+    pwm.set_prescale(3).unwrap();
+    destroy(pwm);
+}
+
+#[test]
+fn set_prescale_stops_and_restarts_oscillator() {
+    let trans = [
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8)]),
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT]),
+        I2cTrans::write(DEV_ADDR, vec![Register::PRE_SCALE, 3]),
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8)]),
+    ];
+    let mut pwm = new(&trans);
+    pwm.enable().unwrap();
+    pwm.set_prescale(3).unwrap();
     destroy(pwm);
 }
 

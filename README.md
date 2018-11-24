@@ -15,6 +15,7 @@ This driver allows you to:
 - Enable/disable the device. See `enable()`.
 - Set the _on_ and _off_ counter for a channel or all of them. See `set_channel_on()`.
 - Set a channel to be always on or off. See `set_channel_full_on()`.
+- Set the prescale value. See `set_prescale()`.
 - Select the output logic state direct or inverted. See `set_output_logic_state()`.
 - Select the EXTCLK pin as clock source. See `use_external_clock()`.
 
