@@ -83,21 +83,20 @@ fn can_create_and_destroy() {
     destroy(pwm);
 }
 
-#[test]
-fn can_enable() {
-    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8)])];
-    let mut pwm = new(&trans);
-    pwm.enable().unwrap();
-    destroy(pwm);
+macro_rules! call_method_test {
+    ($name:ident, $method:ident, $reg:ident, $value:expr $(,$arg:expr),*) => {
+        #[test]
+        fn $name() {
+            let trans = [I2cTrans::write(DEV_ADDR, vec![Register::$reg, $value])];
+            let mut pwm = new(&trans);
+            pwm.$method( $($arg)* ).unwrap();
+            destroy(pwm);
+        }
+    };
 }
 
-#[test]
-fn can_disable() {
-    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT])];
-    let mut pwm = new(&trans);
-    pwm.disable().unwrap();
-    destroy(pwm);
-}
+call_method_test!(can_enable, enable, MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8));
+call_method_test!(can_disable, disable, MODE1, MODE1_DEFAULT);
 
 #[test]
 fn can_use_external_clock() {
