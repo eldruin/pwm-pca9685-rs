@@ -157,6 +157,13 @@ fn cannot_set_channel_on_invalid_value() {
 }
 
 #[test]
+fn cannot_set_channel_full_on_invalid_value() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_channel_full_on(Channel::C0, 4096));
+    destroy(pwm);
+}
+
+#[test]
 fn cannot_set_channel_off_invalid_value() {
     let mut pwm = new(&[]);
     assert_invalid_input_data(pwm.set_channel_off(Channel::C0, 4096));
