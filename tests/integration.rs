@@ -50,7 +50,6 @@ enum BitFlagMode1 {
     ExtClk  = 0b0100_0000,
     AutoInc = 0b0010_0000,
     Sleep   = 0b0001_0000,
-    AllCall = 0b0000_0001,
 }
 
 fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
