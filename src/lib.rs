@@ -4,7 +4,17 @@
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 //!
 //! This driver allows you to:
-//! - TODO
+//! - Enable/disable the device. See [`enable()`].
+//! - Set the _on_ and _off_ counter for a channel or all of them. See [`set_channel_on()`].
+//! - Set a channel to be always on or off. See [`set_channel_full_on()`].
+//! - Select the output logic state direct or inverted. See [`set_output_logic_state()`].
+//! - Select the EXTCLK pin as clock source. See [`use_external_clock()`].
+//!
+//! [`enable()`]: struct.Pca9685.html#method.enable
+//! [`set_channel_on()`]: struct.Pca9685.html#method.set_channel_on
+//! [`set_channel_full_on()`]: struct.Pca9685.html#method.set_channel_full_on
+//! [`set_output_logic_state()`]: struct.Pca9685.html#method.set_output_logic_state
+//! [`use_external_clock()`]: struct.Pca9685.html#method.use_external_clock
 //!
 //! ## The device
 //!
