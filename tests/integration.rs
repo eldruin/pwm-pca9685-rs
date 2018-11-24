@@ -5,7 +5,7 @@ use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
 const DEV_ADDR: u8 = 0b100_0000;
 const MODE1_DEFAULT: u8 = 0b0001_0001;
-const MODE1_AI: u8 = MODE1_DEFAULT | (BitFlagMode1::AUTO_INC as u8);
+const MODE1_AI: u8 = MODE1_DEFAULT | (BitFlagMode1::AutoInc as u8);
 
 struct Register;
 impl Register {
@@ -47,10 +47,10 @@ impl Register {
 }
 
 enum BitFlagMode1 {
-    EXTCLK   = 0b0100_0000,
-    AUTO_INC = 0b0010_0000,
-    SLEEP    = 0b0001_0000,
-    ALLCALL  = 0b0000_0001,
+    ExtClk  = 0b0100_0000,
+    AutoInc = 0b0010_0000,
+    Sleep   = 0b0001_0000,
+    AllCall = 0b0000_0001,
 }
 
 fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
@@ -86,7 +86,7 @@ fn can_create_and_destroy() {
 
 #[test]
 fn can_enable() {
-    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT & !(BitFlagMode1::SLEEP as u8)])];
+    let trans = [I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8)])];
     let mut pwm = new(&trans);
     pwm.enable().unwrap();
     destroy(pwm);

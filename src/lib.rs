@@ -149,15 +149,15 @@ enum BitFlag {
 }
 
 enum BitFlagMode1 {
-    EXTCLK   = 0b0100_0000,
-    AUTO_INC = 0b0010_0000,
-    SLEEP    = 0b0001_0000,
-    ALLCALL  = 0b0000_0001,
+    ExtClk  = 0b0100_0000,
+    AutoInc = 0b0010_0000,
+    Sleep   = 0b0001_0000,
+    AllCall = 0b0000_0001,
 }
 
 enum BitFlagMode2 {
-    INVRT  = 0b0001_0000,
-    OUTDRV = 0b0000_0100,
+    Invrt  = 0b0001_0000,
+    OutDrv = 0b0000_0100,
 }
 
 impl From<BitFlagMode1> for BitFlag {
@@ -219,8 +219,8 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            mode1: (BitFlagMode1::SLEEP as u8) | (BitFlagMode1::ALLCALL as u8),
-            mode2: BitFlagMode2::OUTDRV as u8,
+            mode1: (BitFlagMode1::Sleep as u8) | (BitFlagMode1::AllCall as u8),
+            mode2: BitFlagMode2::OutDrv as u8,
         }
     }
 }
@@ -267,13 +267,13 @@ where
     /// Enable the controller.
     pub fn enable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
-        self.write_mode1(config.with_low(BitFlagMode1::SLEEP))
+        self.write_mode1(config.with_low(BitFlagMode1::Sleep))
     }
 
     /// Disable the controller (sleep).
     pub fn disable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
-        self.write_mode1(config.with_high(BitFlagMode1::SLEEP))
+        self.write_mode1(config.with_high(BitFlagMode1::Sleep))
     }
 
     /// Set the `ON` counter for the selected channel.
@@ -329,9 +329,9 @@ where
     }
 
     fn write_double_register(&mut self, address: u8, value: u16) -> Result<(), Error<E>> {
-        if self.config.is_low(BitFlagMode1::AUTO_INC) {
+        if self.config.is_low(BitFlagMode1::AutoInc) {
             let config = self.config;
-            self.write_mode1(config.with_high(BitFlagMode1::AUTO_INC))?;
+            self.write_mode1(config.with_high(BitFlagMode1::AutoInc))?;
         }
         self.i2c
             .write(self.address, &[address, value as u8, (value >> 8) as u8])
@@ -369,19 +369,19 @@ mod tests {
 
     #[test]
     fn config_mode1_is_high() {
-        assert!(Config::default().is_high(BitFlagMode1::SLEEP));
+        assert!(Config::default().is_high(BitFlagMode1::Sleep));
     }
     #[test]
     fn config_mode1_is_not_high() {
-        assert!(!Config::default().is_high(BitFlagMode1::EXTCLK));
+        assert!(!Config::default().is_high(BitFlagMode1::ExtClk));
     }
 
     #[test]
     fn config_mode2_is_high() {
-        assert!(Config::default().is_high(BitFlagMode2::OUTDRV));
+        assert!(Config::default().is_high(BitFlagMode2::OutDrv));
     }
     #[test]
     fn config_mode2_is_not_high() {
-        assert!(!Config::default().is_high(BitFlagMode2::INVRT));
+        assert!(!Config::default().is_high(BitFlagMode2::Invrt));
     }
 }
