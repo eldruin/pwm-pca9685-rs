@@ -303,7 +303,7 @@ where
             C15, C15_OFF_L, All, ALL_C_OFF_L)
     }
 
-    /// Set the channel full on.
+    /// Set the channel always on.
     ///
     /// The turning on time is given by the value argument.
     pub fn set_channel_full_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
