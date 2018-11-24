@@ -31,7 +31,7 @@ pub enum Error<E> {
 }
 
 /// Output channel selection
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Channel {
     /// Channel 0
     C0,
