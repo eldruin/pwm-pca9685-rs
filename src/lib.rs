@@ -15,8 +15,7 @@
 //! - [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 //!
 
-#![deny(missing_docs, unsafe_code)]
-//TODO #![deny(warnings)]
+#![deny(missing_docs, unsafe_code, warnings)]
 #![no_std]
 
 extern crate embedded_hal as hal;
