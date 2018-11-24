@@ -178,6 +178,30 @@ macro_rules! channels_test {
                     pwm.set_channel_off(Channel::$channel, 4095).unwrap();
                     destroy(pwm);
                 }
+
+                #[test]
+
+                fn can_set_channel_full_on_min() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 0, 0b0001_0000])
+                    ];
+                    let mut pwm = new(&trans);
+                    pwm.set_channel_full_on(Channel::$channel, 0).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+
+                fn can_set_channel_full_on_max() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 0b1111_1111, 0b0001_1111])
+                    ];
+                    let mut pwm = new(&trans);
+                    pwm.set_channel_full_on(Channel::$channel, 4095).unwrap();
+                    destroy(pwm);
+                }
             }
         )*
     };
