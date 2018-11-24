@@ -69,6 +69,19 @@ pub enum Channel {
     All,
 }
 
+/// Output logic state inversion
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum OutputLogicState {
+    /// Output logic state is not inverted.
+    ///
+    /// Value to set when external driver is used. Applicable when `OE = 0`.
+    Direct,
+    /// Output logic state is inverted.
+    ///
+    /// Value to set when no external driver is used. Applicable when `OE = 0`.
+    Inverted,
+}
+
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 
@@ -107,6 +120,7 @@ struct Register;
 
 impl Register {
     const MODE1      : u8 = 0x00;
+    const MODE2      : u8 = 0x01;
     const C0_ON_L    : u8 = 0x06;
     const C0_OFF_L   : u8 = 0x08;
     const C1_ON_L    : u8 = 0x0A;
@@ -333,6 +347,17 @@ where
             C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
     }
 
+    /// Set the output logic state
+    ///
+    /// This allows for inversion of the output logic.
+    pub fn set_output_logic_state(&mut self, state: OutputLogicState) -> Result<(), Error<E>> {
+        let config = self.config;
+        match state {
+            OutputLogicState::Direct   => self.write_mode2(config.with_low(BitFlagMode2::Invrt)),
+            OutputLogicState::Inverted => self.write_mode2(config.with_high(BitFlagMode2::Invrt)),
+        }
+    }
+
     /// Enable using the EXTCLK pin as clock source input.
     ///
     /// This setting is _sticky_. It can only be cleared by a power cycle or
@@ -342,6 +367,14 @@ where
         self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::ExtClk))
+    }
+
+    fn write_mode2(&mut self, config: Config) -> Result<(), Error<E>> {
+        self.i2c
+            .write(self.address, &[Register::MODE2, config.mode2])
+            .map_err(Error::I2C)?;
+        self.config.mode2 = config.mode2;
+        Ok(())
     }
 
     fn write_mode1(&mut self, config: Config) -> Result<(), Error<E>> {

@@ -1,15 +1,17 @@
 extern crate pwm_pca9685 as pca9685;
-use pca9685::{Channel, Error, Pca9685, SlaveAddr};
+use pca9685::{Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
 const DEV_ADDR: u8 = 0b100_0000;
 const MODE1_DEFAULT: u8 = 0b0001_0001;
 const MODE1_AI: u8 = MODE1_DEFAULT | (BitFlagMode1::AutoInc as u8);
+const MODE2_DEFAULT: u8 = 0b0000_0100;
 
 struct Register;
 impl Register {
     const MODE1      : u8 = 0x00;
+    const MODE2      : u8 = 0x01;
     const C0_ON_L    : u8 = 0x06;
     const C0_OFF_L   : u8 = 0x08;
     const C1_ON_L    : u8 = 0x0A;
@@ -50,6 +52,10 @@ enum BitFlagMode1 {
     ExtClk  = 0b0100_0000,
     AutoInc = 0b0010_0000,
     Sleep   = 0b0001_0000,
+}
+
+enum BitFlagMode2 {
+    Invrt  = 0b0001_0000,
 }
 
 fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
@@ -97,6 +103,10 @@ macro_rules! call_method_test {
 
 call_method_test!(can_enable, enable, MODE1, MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8));
 call_method_test!(can_disable, disable, MODE1, MODE1_DEFAULT);
+call_method_test!(can_set_direct_ols, set_output_logic_state,
+    MODE2, MODE2_DEFAULT, OutputLogicState::Direct);
+call_method_test!(can_set_inverted_ols, set_output_logic_state,
+    MODE2, MODE2_DEFAULT | BitFlagMode2::Invrt as u8, OutputLogicState::Inverted);
 
 #[test]
 fn can_use_external_clock() {
