@@ -222,18 +222,18 @@ struct Config {
 }
 
 impl Config {
-    fn is_high<BF: Into<BitFlag>>(&self, bf: BF) -> bool {
+    fn is_high<BF: Into<BitFlag>>(self, bf: BF) -> bool {
         match bf.into() {
             BitFlag::Mode1(mask) => (self.mode1 & (mask as u8)) != 0,
             BitFlag::Mode2(mask) => (self.mode2 & (mask as u8)) != 0,
         }
     }
 
-    fn is_low<BF: Into<BitFlag>>(&self, bf: BF) -> bool {
+    fn is_low<BF: Into<BitFlag>>(self, bf: BF) -> bool {
         !self.is_high(bf)
     }
 
-    fn with_high<BF: Into<BitFlag>>(&self, bf: BF) -> Self {
+    fn with_high<BF: Into<BitFlag>>(self, bf: BF) -> Self {
         match bf.into() {
             BitFlag::Mode1(mask) => Config {
                 mode1: self.mode1 | (mask as u8),
@@ -245,7 +245,7 @@ impl Config {
             },
         }
     }
-    fn with_low<BF: Into<BitFlag>>(&self, bf: BF) -> Self {
+    fn with_low<BF: Into<BitFlag>>(self, bf: BF) -> Self {
         match bf.into() {
             BitFlag::Mode1(mask) => Config {
                 mode1: self.mode1 & !(mask as u8),
