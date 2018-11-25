@@ -43,6 +43,44 @@
 //! Datasheet:
 //! - [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 //!
+//! ## Usage examples (see also examples folder)
+//!
+//! To use this driver, import this crate and an `embedded_hal` implementation,
+//! then instantiate the appropriate device.
+//!
+//! ### Create a driver instance
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{ Pca9685, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let address = SlaveAddr::default();
+//! let pwm = Pca9685::new(dev, address);
+//! // do something...
+//!
+//! // get the I2C device back
+//! let dev = pwm.destroy();
+//! # }
+//! ```
+//!
+//! ### Create a driver instance for the ADS1013 with an alternative address
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{ Pca9685, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let (a5, a4, a3, a2, a1, a0) = (false, true, false, true, true, false);
+//! let address = SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0);
+//! let pwm = Pca9685::new(dev, address);
+//! # }
+//! ```
+//!
 
 #![deny(missing_docs, unsafe_code, warnings)]
 #![no_std]
