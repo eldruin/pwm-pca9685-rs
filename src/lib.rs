@@ -445,8 +445,12 @@ where
     /// 1526 Hz. The maximum prescale value is 255, which corresponds to an
     /// update rate of 24 Hz.
     ///
+    /// If you want to control a servo, set a prescale value of 100. This will
+    /// correspond to a frequency of about 60 Hz, which is the frequency at
+    /// which servos work.
+    ///
     /// Internally this function stops the oscillator and restarts it after
-    /// setting the prescale value if it was running
+    /// setting the prescale value if it was running.
     pub fn set_prescale(&mut self, prescale: u8) -> Result<(), Error<E>> {
         if prescale < 3 {
             return Err(Error::InvalidInputData);
