@@ -47,6 +47,9 @@ Datasheet:
 
 ## Usage
 
+Please find additional examples in this repository: [pca9685-examples]
+[pca9685-examples]: https://github.com/eldruin/pca9685-examples
+
 TODO
 
 ## License
