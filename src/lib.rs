@@ -69,7 +69,7 @@
 //! # }
 //! ```
 //!
-//! ### Create a driver instance for the ADS1013 with an alternative address
+//! ### Create a driver instance for the PCA9685 with an alternative address
 //!
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
