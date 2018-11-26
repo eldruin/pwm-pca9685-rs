@@ -50,7 +50,30 @@ Datasheet:
 Please find additional examples in this repository: [pca9685-examples]
 [pca9685-examples]: https://github.com/eldruin/pca9685-examples
 
-TODO
+To use this driver, import this crate and an `embedded_hal` implementation,
+then instantiate the appropriate device.
+
+In this example we set a PWM frequency of 60 Hz and a duty cycle of 50%
+on channel 0.
+```rust
+extern crate linux_embedded_hal as hal;
+extern crate pwm_pca9685 as pca9685;
+use pca9685::{ Channel, Pca9685, SlaveAddr };
+
+fn main() {
+    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+    let address = SlaveAddr::default();
+    let mut pwm = Pca9685::new(dev, address);
+    // This corresponds to a frequency of 60 Hz.
+    pwm.set_prescale(100).unwrap();
+
+    // Turn on channel 0 at 0.
+    pwm.set_channel_on(Channel::C0, 0).unwrap();
+
+    // Turn off channel 0 at 2047, which is 50% in
+    // the range `[0..4095]`.
+    pwm.set_channel_off(Channel::C0, 2047).unwrap();
+```
 
 ## License
 
