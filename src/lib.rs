@@ -84,6 +84,41 @@
 //! # }
 //! ```
 //!
+//! ### Set the PWM frequency and channel duty cycles
+//!
+//! - Set a PWM frequency of 60 Hz (corresponds to a value of 100 for the
+//!   prescale).
+//! - Set a duty cycle of 50% for channel 0.
+//! - Set a duty cycle of 75% for channel 1 delayed 814 µs with respect
+//!   to channel 0.
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let address = SlaveAddr::default();
+//! let mut pwm = Pca9685::new(dev, address);
+//! pwm.set_prescale(100).unwrap();
+//!
+//! // Turn on channel 0 at 0
+//! pwm.set_channel_on(Channel::C0, 0).unwrap();
+//!
+//! // Turn off channel 0 at 2047, which is 50% in the range `[0..4095]`.
+//! pwm.set_channel_off(Channel::C0, 2047).unwrap();
+//!
+//! // Turn on channel 1 at 200. This value comes from:
+//! // 0.000814 (seconds) * 60 (Hz) * 4096 (resolution) = 200
+//! pwm.set_channel_on(Channel::C1, 200).unwrap();
+//!
+//! // Turn off channel 1 at 3271, which is 75% in the range `[0..4095]`
+//! // plus 200 which is when the channel turns on.
+//! pwm.set_channel_off(Channel::C1, 3271).unwrap();
+//! # }
+//! ```
+//!
 
 #![deny(missing_docs, unsafe_code, warnings)]
 #![no_std]
