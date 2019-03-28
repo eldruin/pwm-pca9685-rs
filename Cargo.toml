@@ -11,7 +11,7 @@ categories = ["embedded", "hardware-support", "no-std"]
 homepage = "https://github.com/eldruin/pwm-pca9685-rs"
 documentation = "https://docs.rs/pwm-pca9685"
 include = [
-    "**/*.rs",
+    "/**/*.rs",
     "/Cargo.toml",
     "/README.md",
     "/CHANGELOG.md",
