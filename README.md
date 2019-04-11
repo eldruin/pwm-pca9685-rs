@@ -76,6 +76,11 @@ fn main() {
     pwm.set_channel_off(Channel::C0, 2047).unwrap();
 ```
 
+## Support
+
+For questions, issues, feature requests, and other changes, please file an
+[issue in the github project](https://github.com/eldruin/pwm-pca9685-rs/issues).
+
 ## License
 
 Licensed under either of
