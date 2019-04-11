@@ -188,7 +188,6 @@ pub enum OutputLogicState {
 
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
-
 /// Possible slave addresses
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SlaveAddr {
@@ -209,13 +208,15 @@ impl SlaveAddr {
     fn addr(self, default: u8) -> u8 {
         match self {
             SlaveAddr::Default => default,
-            SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0) => default           |
-                                                              ((a5 as u8) << 5) |
-                                                              ((a4 as u8) << 4) |
-                                                              ((a3 as u8) << 3) |
-                                                              ((a2 as u8) << 2) |
-                                                              ((a1 as u8) << 1) |
-                                                                a0 as u8
+            SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0) => {
+                default
+                    | ((a5 as u8) << 5)
+                    | ((a4 as u8) << 4)
+                    | ((a3 as u8) << 3)
+                    | ((a2 as u8) << 2)
+                    | ((a1 as u8) << 1)
+                    | a0 as u8
+            }
         }
     }
 }
@@ -223,43 +224,43 @@ impl SlaveAddr {
 struct Register;
 
 impl Register {
-    const MODE1      : u8 = 0x00;
-    const MODE2      : u8 = 0x01;
-    const C0_ON_L    : u8 = 0x06;
-    const C0_OFF_L   : u8 = 0x08;
-    const C1_ON_L    : u8 = 0x0A;
-    const C1_OFF_L   : u8 = 0x0C;
-    const C2_ON_L    : u8 = 0x0E;
-    const C2_OFF_L   : u8 = 0x10;
-    const C3_ON_L    : u8 = 0x12;
-    const C3_OFF_L   : u8 = 0x14;
-    const C4_ON_L    : u8 = 0x16;
-    const C4_OFF_L   : u8 = 0x18;
-    const C5_ON_L    : u8 = 0x1A;
-    const C5_OFF_L   : u8 = 0x1C;
-    const C6_ON_L    : u8 = 0x1E;
-    const C6_OFF_L   : u8 = 0x20;
-    const C7_ON_L    : u8 = 0x22;
-    const C7_OFF_L   : u8 = 0x24;
-    const C8_ON_L    : u8 = 0x26;
-    const C8_OFF_L   : u8 = 0x28;
-    const C9_ON_L    : u8 = 0x2A;
-    const C9_OFF_L   : u8 = 0x2C;
-    const C10_ON_L   : u8 = 0x2E;
-    const C10_OFF_L  : u8 = 0x30;
-    const C11_ON_L   : u8 = 0x32;
-    const C11_OFF_L  : u8 = 0x34;
-    const C12_ON_L   : u8 = 0x36;
-    const C12_OFF_L  : u8 = 0x38;
-    const C13_ON_L   : u8 = 0x3A;
-    const C13_OFF_L  : u8 = 0x3C;
-    const C14_ON_L   : u8 = 0x3E;
-    const C14_OFF_L  : u8 = 0x40;
-    const C15_ON_L   : u8 = 0x42;
-    const C15_OFF_L  : u8 = 0x44;
-    const ALL_C_ON_L : u8 = 0xFA;
+    const MODE1: u8 = 0x00;
+    const MODE2: u8 = 0x01;
+    const C0_ON_L: u8 = 0x06;
+    const C0_OFF_L: u8 = 0x08;
+    const C1_ON_L: u8 = 0x0A;
+    const C1_OFF_L: u8 = 0x0C;
+    const C2_ON_L: u8 = 0x0E;
+    const C2_OFF_L: u8 = 0x10;
+    const C3_ON_L: u8 = 0x12;
+    const C3_OFF_L: u8 = 0x14;
+    const C4_ON_L: u8 = 0x16;
+    const C4_OFF_L: u8 = 0x18;
+    const C5_ON_L: u8 = 0x1A;
+    const C5_OFF_L: u8 = 0x1C;
+    const C6_ON_L: u8 = 0x1E;
+    const C6_OFF_L: u8 = 0x20;
+    const C7_ON_L: u8 = 0x22;
+    const C7_OFF_L: u8 = 0x24;
+    const C8_ON_L: u8 = 0x26;
+    const C8_OFF_L: u8 = 0x28;
+    const C9_ON_L: u8 = 0x2A;
+    const C9_OFF_L: u8 = 0x2C;
+    const C10_ON_L: u8 = 0x2E;
+    const C10_OFF_L: u8 = 0x30;
+    const C11_ON_L: u8 = 0x32;
+    const C11_OFF_L: u8 = 0x34;
+    const C12_ON_L: u8 = 0x36;
+    const C12_OFF_L: u8 = 0x38;
+    const C13_ON_L: u8 = 0x3A;
+    const C13_OFF_L: u8 = 0x3C;
+    const C14_ON_L: u8 = 0x3E;
+    const C14_OFF_L: u8 = 0x40;
+    const C15_ON_L: u8 = 0x42;
+    const C15_OFF_L: u8 = 0x44;
+    const ALL_C_ON_L: u8 = 0xFA;
     const ALL_C_OFF_L: u8 = 0xFC;
-    const PRE_SCALE  : u8 = 0xFE;
+    const PRE_SCALE: u8 = 0xFE;
 }
 
 mod config;
@@ -322,11 +323,10 @@ where
             return Err(Error::InvalidInputData);
         }
         impl_channel_match!(
-            self, channel, value,
-            C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
-            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L,
-            C10, C10_ON_L, C11, C11_ON_L, C12, C12_ON_L, C13, C13_ON_L,
-            C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
+            self, channel, value, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
+            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11,
+            C11_ON_L, C12, C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
+        )
     }
 
     /// Set the `OFF` counter for the selected channel.
@@ -335,12 +335,44 @@ where
             return Err(Error::InvalidInputData);
         }
         impl_channel_match!(
-            self, channel, value,
-            C0, C0_OFF_L, C1, C1_OFF_L, C2, C2_OFF_L, C3, C3_OFF_L,
-            C4, C4_OFF_L, C5, C5_OFF_L, C6, C6_OFF_L, C7, C7_OFF_L,
-            C8, C8_OFF_L, C9, C9_OFF_L, C10, C10_OFF_L, C11, C11_OFF_L,
-            C12, C12_OFF_L, C13, C13_OFF_L, C14, C14_OFF_L,
-            C15, C15_OFF_L, All, ALL_C_OFF_L)
+            self,
+            channel,
+            value,
+            C0,
+            C0_OFF_L,
+            C1,
+            C1_OFF_L,
+            C2,
+            C2_OFF_L,
+            C3,
+            C3_OFF_L,
+            C4,
+            C4_OFF_L,
+            C5,
+            C5_OFF_L,
+            C6,
+            C6_OFF_L,
+            C7,
+            C7_OFF_L,
+            C8,
+            C8_OFF_L,
+            C9,
+            C9_OFF_L,
+            C10,
+            C10_OFF_L,
+            C11,
+            C11_OFF_L,
+            C12,
+            C12_OFF_L,
+            C13,
+            C13_OFF_L,
+            C14,
+            C14_OFF_L,
+            C15,
+            C15_OFF_L,
+            All,
+            ALL_C_OFF_L
+        )
     }
 
     /// Set the channel always on.
@@ -352,11 +384,10 @@ where
         }
         let value = value | 0b0001_0000_0000_0000;
         impl_channel_match!(
-            self, channel, value,
-            C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
-            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L,
-            C10, C10_ON_L, C11, C11_ON_L, C12, C12_ON_L, C13, C13_ON_L,
-            C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
+            self, channel, value, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
+            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11,
+            C11_ON_L, C12, C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
+        )
     }
 
     /// Set the channel always off.
@@ -366,11 +397,10 @@ where
     pub fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
         let value = 0b0001_0000_0000_0000;
         impl_channel_match!(
-            self, channel, value,
-            C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
-            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L,
-            C10, C10_ON_L, C11, C11_ON_L, C12, C12_ON_L, C13, C13_ON_L,
-            C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L)
+            self, channel, value, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
+            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11,
+            C11_ON_L, C12, C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
+        )
     }
 
     /// Set the output logic state
@@ -379,7 +409,7 @@ where
     pub fn set_output_logic_state(&mut self, state: OutputLogicState) -> Result<(), Error<E>> {
         let config = self.config;
         match state {
-            OutputLogicState::Direct   => self.write_mode2(config.with_low(BitFlagMode2::Invrt)),
+            OutputLogicState::Direct => self.write_mode2(config.with_low(BitFlagMode2::Invrt)),
             OutputLogicState::Inverted => self.write_mode2(config.with_high(BitFlagMode2::Invrt)),
         }
     }
@@ -477,22 +507,47 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use DEVICE_BASE_ADDRESS as DEV_ADDR;
 
     #[test]
     fn can_get_default_address() {
         let addr = SlaveAddr::default();
-        assert_eq!(DEVICE_BASE_ADDRESS, addr.addr(DEVICE_BASE_ADDRESS));
+        assert_eq!(DEV_ADDR, addr.addr(DEV_ADDR));
     }
 
     #[test]
     fn can_generate_alternative_addresses() {
-        assert_eq!(0b100_0000, SlaveAddr::Alternative(false, false, false, false, false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_0001, SlaveAddr::Alternative(false, false, false, false, false,  true).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_0010, SlaveAddr::Alternative(false, false, false, false,  true, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_0100, SlaveAddr::Alternative(false, false, false,  true, false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_1000, SlaveAddr::Alternative(false, false,  true, false, false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b101_0000, SlaveAddr::Alternative(false,  true, false, false, false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b110_0000, SlaveAddr::Alternative( true, false, false, false, false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b111_1111, SlaveAddr::Alternative( true,  true,  true,  true,  true,  true).addr(DEVICE_BASE_ADDRESS));
+        assert_eq!(
+            0b100_0000,
+            SlaveAddr::Alternative(false, false, false, false, false, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b100_0001,
+            SlaveAddr::Alternative(false, false, false, false, false, true).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b100_0010,
+            SlaveAddr::Alternative(false, false, false, false, true, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b100_0100,
+            SlaveAddr::Alternative(false, false, false, true, false, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b100_1000,
+            SlaveAddr::Alternative(false, false, true, false, false, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b101_0000,
+            SlaveAddr::Alternative(false, true, false, false, false, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b110_0000,
+            SlaveAddr::Alternative(true, false, false, false, false, false).addr(DEV_ADDR)
+        );
+        assert_eq!(
+            0b111_1111,
+            SlaveAddr::Alternative(true, true, true, true, true, true).addr(DEV_ADDR)
+        );
     }
 }

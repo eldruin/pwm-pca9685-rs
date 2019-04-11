@@ -6,14 +6,14 @@ pub enum BitFlag {
 }
 
 pub enum BitFlagMode1 {
-    ExtClk  = 0b0100_0000,
+    ExtClk = 0b0100_0000,
     AutoInc = 0b0010_0000,
-    Sleep   = 0b0001_0000,
+    Sleep = 0b0001_0000,
     AllCall = 0b0000_0001,
 }
 
 pub enum BitFlagMode2 {
-    Invrt  = 0b0001_0000,
+    Invrt = 0b0001_0000,
     OutDrv = 0b0000_0100,
 }
 
