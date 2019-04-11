@@ -47,9 +47,9 @@ Datasheet:
 
 ## Usage
 
-Please find additional examples in this repository: [pca9685-examples]
+Please find additional examples in this repository: [driver-examples]
 
-[pca9685-examples]: https://github.com/eldruin/pca9685-examples
+[pca9685-examples]: https://github.com/eldruin/driver-examples
 
 To use this driver, import this crate and an `embedded_hal` implementation,
 then instantiate the appropriate device.
