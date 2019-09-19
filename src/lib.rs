@@ -49,6 +49,7 @@
 //! then instantiate the appropriate device.
 //!
 //! Please find additional examples in this repository: [driver-examples]
+//!
 //! [driver-examples]: https://github.com/eldruin/driver-examples
 //!
 //! ### Create a driver instance
