@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-...
+### Fixed
+- Setting channel full off registers wrote to the full on ones.
 
 ## 0.1.0 - 2018-11-26
 

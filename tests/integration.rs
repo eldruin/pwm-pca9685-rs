@@ -300,7 +300,7 @@ macro_rules! channels_test {
                 fn can_set_channel_full_off() {
                     let trans = [
                         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
-                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 0, 0b0001_0000])
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_off, 0, 0b0001_0000])
                     ];
                     let mut pwm = new(&trans);
                     pwm.set_channel_full_off(Channel::$channel).unwrap();
