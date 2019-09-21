@@ -120,6 +120,36 @@
 //! # }
 //! ```
 //!
+//! ### Set a channel completely on and off (beware of precedences).
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let address = SlaveAddr::default();
+//! let mut pwm = Pca9685::new(dev, address);
+//!
+//! // Turn channel 0 full on at 1024
+//! pwm.set_channel_full_on(Channel::C0, 1024).unwrap();
+//!
+//! // Turn channel 0 full off (full off takes precedence over on settings)
+//! pwm.set_channel_full_off(Channel::C0).unwrap();
+//!
+//! // Return channel 0 to full on by deactivating full off.
+//! // The value is ignored because full on takes precedence
+//! // over off settings except full off.
+//! let value_ignored_for_now = 2048;
+//! pwm.set_channel_off(Channel::C0, value_ignored_for_now).unwrap();
+//!
+//! // Deactivate full on and set a duty cycle of 50% for channel 0.
+//! // (on from 0 to 2047, then off)
+//! pwm.set_channel_on(Channel::C0, 0).unwrap();
+//! # }
+//! ```
+//!
 
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
@@ -319,6 +349,10 @@ where
     }
 
     /// Set the `ON` counter for the selected channel.
+    ///
+    /// Note that the full off setting takes precedence over the `on` settings.
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
     pub fn set_channel_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
@@ -379,6 +413,10 @@ where
     /// Set the channel always on.
     ///
     /// The turning on is delayed by the value argument.
+    /// Note that the full off setting takes precedence over the `on` settings.
+    ///
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
     pub fn set_channel_full_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
@@ -395,6 +433,9 @@ where
     ///
     /// This takes precedence over the `on` settings and can be cleared by setting
     /// the `off` counter with [`set_channel_off`](struct.Pca9685.html#method.set_channel_off).
+    ///
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
     pub fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
         let value = 0b0001_0000_0000_0000;
         impl_channel_match!(
