@@ -1,6 +1,6 @@
 [package]
 name = "pwm-pca9685"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Diego Barrios Romero <eldruin@gmail.com>"]
 repository = "https://github.com/eldruin/pwm-pca9685-rs"
 license = "MIT OR Apache-2.0"
