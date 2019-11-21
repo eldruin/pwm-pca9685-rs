@@ -60,7 +60,7 @@ enum BitFlagMode2 {
 }
 
 fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
-    Pca9685::new(I2cMock::new(&transactions), SlaveAddr::default())
+    Pca9685::new(I2cMock::new(transactions), SlaveAddr::default())
 }
 
 fn destroy(pwm: Pca9685<I2cMock>) {

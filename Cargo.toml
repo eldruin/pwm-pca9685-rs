@@ -29,7 +29,7 @@ embedded-hal = "0.2"
 
 [dev-dependencies]
 linux-embedded-hal = "0.2"
-embedded-hal-mock = "0.4"
+embedded-hal-mock = "0.7"
 
 [profile.release]
 lto = true
