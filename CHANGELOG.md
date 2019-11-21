@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-...
+### Added
+- Support setting the on and off counters of a channel at once.
+- Support setting the on and off counters of each channel at once.
 
 ## [0.1.1] - 2019-09-21
 
