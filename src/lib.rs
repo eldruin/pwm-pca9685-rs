@@ -308,11 +308,11 @@ pub struct Pca9685<I2C> {
     config: Config,
 }
 
-macro_rules! impl_channel_match {
-    ($s:ident, $channel:expr, $value:expr, $($C:ident, $reg:ident),*) => {
+macro_rules! get_register {
+    ($channel:expr, $($C:ident, $reg:ident),*) => {
         match $channel {
             $(
-                Channel::$C  => $s.write_double_register(Register::$reg, $value),
+                Channel::$C  => Register::$reg,
             )*
         }
     };
@@ -357,11 +357,12 @@ where
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
-        impl_channel_match!(
-            self, channel, value, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
-            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11,
-            C11_ON_L, C12, C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
-        )
+        let reg = get_register!(
+            channel, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L, C5, C5_ON_L,
+            C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11, C11_ON_L, C12,
+            C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
+        );
+        self.write_double_register(reg, value)
     }
 
     /// Set the `OFF` counter for the selected channel.
@@ -369,10 +370,8 @@ where
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
-        impl_channel_match!(
-            self,
+        let reg = get_register!(
             channel,
-            value,
             C0,
             C0_OFF_L,
             C1,
@@ -407,7 +406,8 @@ where
             C15_OFF_L,
             All,
             ALL_C_OFF_L
-        )
+        );
+        self.write_double_register(reg, value)
     }
 
     /// Set the channel always on.
@@ -421,12 +421,13 @@ where
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
+        let reg = get_register!(
+            channel, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L, C5, C5_ON_L,
+            C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11, C11_ON_L, C12,
+            C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
+        );
         let value = value | 0b0001_0000_0000_0000;
-        impl_channel_match!(
-            self, channel, value, C0, C0_ON_L, C1, C1_ON_L, C2, C2_ON_L, C3, C3_ON_L, C4, C4_ON_L,
-            C5, C5_ON_L, C6, C6_ON_L, C7, C7_ON_L, C8, C8_ON_L, C9, C9_ON_L, C10, C10_ON_L, C11,
-            C11_ON_L, C12, C12_ON_L, C13, C13_ON_L, C14, C14_ON_L, C15, C15_ON_L, All, ALL_C_ON_L
-        )
+        self.write_double_register(reg, value)
     }
 
     /// Set the channel always off.
@@ -437,11 +438,8 @@ where
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
     pub fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
-        let value = 0b0001_0000_0000_0000;
-        impl_channel_match!(
-            self,
+        let reg = get_register!(
             channel,
-            value,
             C0,
             C0_OFF_L,
             C1,
@@ -476,7 +474,9 @@ where
             C15_OFF_L,
             All,
             ALL_C_OFF_L
-        )
+        );
+        let value = 0b0001_0000_0000_0000;
+        self.write_double_register(reg, value)
     }
 
     /// Set the output logic state
