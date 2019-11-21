@@ -389,6 +389,28 @@ where
         self.write_double_register(reg, value)
     }
 
+    /// Set the `ON` and `OFF` counter for each channel at once.
+    ///
+    /// The index of the value in the arrays corresponds to the channel: 0-15.
+    /// Note that the full off setting takes precedence over the `on` settings.
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
+    pub fn set_all_on_off(&mut self, on: &[u16; 16], off: &[u16; 16]) -> Result<(), Error<E>> {
+        let mut data = [0; 65];
+        data[0] = Register::C0_ON_L;
+        for (i, (on, off)) in on.iter().zip(off).enumerate() {
+            if *on > 4095 || *off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = *on as u8;
+            data[i * 4 + 2] = (*on >> 8) as u8;
+            data[i * 4 + 3] = *off as u8;
+            data[i * 4 + 4] = (*off >> 8) as u8;
+        }
+        self.enable_auto_increment()?;
+        self.i2c.write(self.address, &data).map_err(Error::I2C)
+    }
+
     /// Set the output logic state
     ///
     /// This allows for inversion of the output logic.
@@ -479,11 +501,17 @@ where
         Ok(())
     }
 
-    fn write_double_register(&mut self, address: u8, value: u16) -> Result<(), Error<E>> {
+    fn enable_auto_increment(&mut self) -> Result<(), Error<E>> {
         if self.config.is_low(BitFlagMode1::AutoInc) {
             let config = self.config;
-            self.write_mode1(config.with_high(BitFlagMode1::AutoInc))?;
+            self.write_mode1(config.with_high(BitFlagMode1::AutoInc))
+        } else {
+            Ok(())
         }
+    }
+
+    fn write_double_register(&mut self, address: u8, value: u16) -> Result<(), Error<E>> {
+        self.enable_auto_increment()?;
         self.i2c
             .write(self.address, &[address, value as u8, (value >> 8) as u8])
             .map_err(Error::I2C)

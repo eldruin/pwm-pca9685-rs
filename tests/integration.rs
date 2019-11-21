@@ -201,6 +201,20 @@ fn cannot_set_channel_off_invalid_value() {
 }
 
 #[test]
+fn cannot_set_all_on_off_invalid_value_on() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_all_on_off(&[4096; 16], &[0; 16]));
+    destroy(pwm);
+}
+
+#[test]
+fn cannot_set_all_on_off_invalid_value_off() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_all_on_off(&[0; 16], &[4096; 16]));
+    destroy(pwm);
+}
+
+#[test]
 fn sets_autoincrement_just_once() {
     let trans = [
         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
@@ -364,3 +378,92 @@ channels_test!(
     ALL_C_ON_L,
     ALL_C_OFF_L
 );
+
+#[test]
+
+fn can_set_all_on_off() {
+    let trans = [
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+        I2cTrans::write(
+            DEV_ADDR,
+            vec![
+                Register::C0_ON_L,
+                1,
+                1,
+                3,
+                3,
+                2,
+                1,
+                4,
+                3,
+                3,
+                1,
+                5,
+                3,
+                4,
+                1,
+                6,
+                3,
+                5,
+                1,
+                7,
+                3,
+                6,
+                1,
+                8,
+                3,
+                7,
+                1,
+                9,
+                3,
+                8,
+                1,
+                0,
+                4,
+                9,
+                1,
+                1,
+                4,
+                0,
+                2,
+                2,
+                4,
+                1,
+                2,
+                3,
+                4,
+                2,
+                2,
+                4,
+                4,
+                3,
+                2,
+                5,
+                4,
+                4,
+                2,
+                6,
+                4,
+                5,
+                2,
+                7,
+                4,
+                6,
+                2,
+                8,
+                4,
+            ],
+        ),
+    ];
+    let mut pwm = new(&trans);
+    let on = [
+        0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x200, 0x201, 0x202, 0x203,
+        0x204, 0x205, 0x206,
+    ];
+    let off = [
+        0x303, 0x304, 0x305, 0x306, 0x307, 0x308, 0x309, 0x400, 0x401, 0x402, 0x403, 0x404, 0x405,
+        0x406, 0x407, 0x408,
+    ];
+    pwm.set_all_on_off(&on, &off).unwrap();
+    destroy(pwm);
+}
