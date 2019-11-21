@@ -360,6 +360,24 @@ where
         self.write_double_register(reg, value)
     }
 
+    /// Set the `ON` and `OFF` counters for the selected channel.
+    ///
+    /// Note that the full off setting takes precedence over the `on` settings.
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
+    pub fn set_channel_on_off(
+        &mut self,
+        channel: Channel,
+        on: u16,
+        off: u16,
+    ) -> Result<(), Error<E>> {
+        if on > 4095 || off > 4095 {
+            return Err(Error::InvalidInputData);
+        }
+        let reg = get_register_on(channel);
+        self.write_two_double_registers(reg, on, off)
+    }
+
     /// Set the channel always on.
     ///
     /// The turning on is delayed by the value argument.
@@ -508,6 +526,27 @@ where
         } else {
             Ok(())
         }
+    }
+
+    fn write_two_double_registers(
+        &mut self,
+        address: u8,
+        value0: u16,
+        value1: u16,
+    ) -> Result<(), Error<E>> {
+        self.enable_auto_increment()?;
+        self.i2c
+            .write(
+                self.address,
+                &[
+                    address,
+                    value0 as u8,
+                    (value0 >> 8) as u8,
+                    value1 as u8,
+                    (value1 >> 8) as u8,
+                ],
+            )
+            .map_err(Error::I2C)
     }
 
     fn write_double_register(&mut self, address: u8, value: u16) -> Result<(), Error<E>> {

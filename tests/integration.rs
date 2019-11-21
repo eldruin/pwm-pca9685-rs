@@ -201,6 +201,20 @@ fn cannot_set_channel_off_invalid_value() {
 }
 
 #[test]
+fn cannot_set_channel_on_off_invalid_value_on() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_channel_on_off(Channel::C0, 4096, 0));
+    destroy(pwm);
+}
+
+#[test]
+fn cannot_set_channel_on_off_invalid_value_off() {
+    let mut pwm = new(&[]);
+    assert_invalid_input_data(pwm.set_channel_on_off(Channel::C0, 0, 4096));
+    destroy(pwm);
+}
+
+#[test]
 fn cannot_set_all_on_off_invalid_value_on() {
     let mut pwm = new(&[]);
     assert_invalid_input_data(pwm.set_all_on_off(&[4096; 16], &[0; 16]));
@@ -318,6 +332,18 @@ macro_rules! channels_test {
                     ];
                     let mut pwm = new(&trans);
                     pwm.set_channel_full_off(Channel::$channel).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+
+                fn can_set_channel_on_off() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write(DEV_ADDR, vec![Register::$reg_on, 2, 1, 4, 3])
+                    ];
+                    let mut pwm = new(&trans);
+                    pwm.set_channel_on_off(Channel::$channel, 0x102, 0x304).unwrap();
                     destroy(pwm);
                 }
             }
