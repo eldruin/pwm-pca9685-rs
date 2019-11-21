@@ -183,9 +183,7 @@
 //! # }
 //! ```
 //!
-//! ### Set the channel duty cycle for all channels at once
-//!
-//! - Set a duty cycle of 50% on all channels
+//! ### Set a 50% duty cycle for all channels at once
 //!
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
