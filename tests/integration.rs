@@ -138,12 +138,18 @@ fn can_use_external_clock() {
     destroy(pwm);
 }
 
-#[test]
-fn cannot_set_prescale_too_small() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_prescale(2));
-    destroy(pwm);
+macro_rules! set_invalid_test {
+    ($name:ident, $method:ident, $($args:expr),*) => {
+        #[test]
+        fn $name() {
+            let mut pwm = new(&[]);
+            assert_invalid_input_data(pwm.$method($($args),*));
+            destroy(pwm);
+        }
+    };
 }
+
+set_invalid_test!(cannot_set_prescale_too_small, set_prescale, 2);
 
 #[test]
 fn can_set_prescale() {
@@ -179,54 +185,56 @@ fn set_prescale_stops_and_restarts_oscillator() {
     destroy(pwm);
 }
 
-#[test]
-fn cannot_set_channel_on_invalid_value() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_channel_on(Channel::C0, 4096));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_channel_on_invalid_value,
+    set_channel_on,
+    Channel::C0,
+    4096
+);
 
-#[test]
-fn cannot_set_channel_full_on_invalid_value() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_channel_full_on(Channel::C0, 4096));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_channel_full_on_invalid_value,
+    set_channel_full_on,
+    Channel::C0,
+    4096
+);
 
-#[test]
-fn cannot_set_channel_off_invalid_value() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_channel_off(Channel::C0, 4096));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_channel_off_invalid_value,
+    set_channel_off,
+    Channel::C0,
+    4096
+);
 
-#[test]
-fn cannot_set_channel_on_off_invalid_value_on() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_channel_on_off(Channel::C0, 4096, 0));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_channel_on_off_invalid_value_on,
+    set_channel_on_off,
+    Channel::C0,
+    4096,
+    0
+);
 
-#[test]
-fn cannot_set_channel_on_off_invalid_value_off() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_channel_on_off(Channel::C0, 0, 4096));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_channel_on_off_invalid_value_off,
+    set_channel_on_off,
+    Channel::C0,
+    0,
+    4096
+);
 
-#[test]
-fn cannot_set_all_on_off_invalid_value_on() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_all_on_off(&[4096; 16], &[0; 16]));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_all_on_off_invalid_value_on,
+    set_all_on_off,
+    &[4096; 16],
+    &[0; 16]
+);
 
-#[test]
-fn cannot_set_all_on_off_invalid_value_off() {
-    let mut pwm = new(&[]);
-    assert_invalid_input_data(pwm.set_all_on_off(&[0; 16], &[4096; 16]));
-    destroy(pwm);
-}
+set_invalid_test!(
+    cannot_set_all_on_off_invalid_value_off,
+    set_all_on_off,
+    &[0; 16],
+    &[4096; 16]
+);
 
 #[test]
 fn sets_autoincrement_just_once() {
