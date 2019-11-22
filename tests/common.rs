@@ -6,9 +6,9 @@ use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 #[allow(unused)]
 pub const DEV_ADDR: u8 = 0b100_0000;
 #[allow(unused)]
-pub const MODE1_DEFAULT: u8 = 0b0001_0001;
+pub const MODE1_DEFAULT: u8 = BitFlags::SLEEP | BitFlags::ALL_CALL_ADDR;
 #[allow(unused)]
-pub const MODE1_AI: u8 = MODE1_DEFAULT | (BitFlagMode1::AutoInc as u8);
+pub const MODE1_AI: u8 = MODE1_DEFAULT | BitFlags::AUTO_INC;
 #[allow(unused)]
 pub const MODE2_DEFAULT: u8 = 0b0000_0100;
 
@@ -58,20 +58,18 @@ impl Register {
     pub const PRE_SCALE: u8 = 0xFE;
 }
 
+pub struct BitFlags;
 #[allow(unused)]
-pub enum BitFlagMode1 {
-    ExtClk = 0b0100_0000,
-    AutoInc = 0b0010_0000,
-    Sleep = 0b0001_0000,
-    Subaddress1 = 0b0000_1000,
-    Subaddress2 = 0b0000_0100,
-    Subaddress3 = 0b0000_0010,
-    AllCall = 0b0000_0001,
-}
-
-#[allow(unused)]
-pub enum BitFlagMode2 {
-    Invrt = 0b0001_0000,
+impl BitFlags {
+    pub const RESTART: u8 = 0b1000_0000;
+    pub const EXT_CLK: u8 = 0b0100_0000;
+    pub const AUTO_INC: u8 = 0b0010_0000;
+    pub const SLEEP: u8 = 0b0001_0000;
+    pub const SUBADDR1: u8 = 0b0000_1000;
+    pub const SUBADDR2: u8 = 0b0000_0100;
+    pub const SUBADDR3: u8 = 0b0000_0010;
+    pub const ALL_CALL_ADDR: u8 = 0b0000_0001;
+    pub const INVRT: u8 = 0b0001_0000;
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {

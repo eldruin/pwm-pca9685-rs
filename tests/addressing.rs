@@ -4,7 +4,7 @@ extern crate pwm_pca9685 as pca9685;
 use pca9685::{ProgrammableAddress as ProgAddr, SlaveAddr};
 mod common;
 use common::{
-    assert_invalid_input_data, destroy, new, BitFlagMode1, Register, DEV_ADDR, MODE1_DEFAULT,
+    assert_invalid_input_data, destroy, new, BitFlags, Register, DEV_ADDR, MODE1_DEFAULT,
 };
 
 invalid_test!(cannot_set_address_0, set_address, 0);
@@ -47,7 +47,7 @@ macro_rules! prog_addr_test {
                 can_enable,
                 enable_programmable_address,
                 MODE1,
-                MODE1_DEFAULT | (BitFlagMode1::$variant as u8),
+                MODE1_DEFAULT | BitFlags::$reg,
                 ProgAddr::$variant
             );
 
@@ -55,7 +55,7 @@ macro_rules! prog_addr_test {
                 can_disable,
                 disable_programmable_address,
                 MODE1,
-                MODE1_DEFAULT & !(BitFlagMode1::$variant as u8),
+                MODE1_DEFAULT & !BitFlags::$reg,
                 ProgAddr::$variant
             );
         }

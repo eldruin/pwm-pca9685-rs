@@ -5,8 +5,8 @@ use hal::i2c::Transaction as I2cTrans;
 
 mod common;
 use common::{
-    assert_invalid_input_data, destroy, new, BitFlagMode1, BitFlagMode2, Register, DEV_ADDR,
-    MODE1_DEFAULT, MODE2_DEFAULT,
+    assert_invalid_input_data, destroy, new, BitFlags, Register, DEV_ADDR, MODE1_DEFAULT,
+    MODE2_DEFAULT,
 };
 
 #[test]
@@ -15,12 +15,7 @@ fn can_create_and_destroy() {
     destroy(pwm);
 }
 
-call_method_test!(
-    can_enable,
-    enable,
-    MODE1,
-    MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8)
-);
+call_method_test!(can_enable, enable, MODE1, MODE1_DEFAULT & !BitFlags::SLEEP);
 call_method_test!(can_disable, disable, MODE1, MODE1_DEFAULT);
 call_method_test!(
     can_set_direct_ols,
@@ -33,7 +28,7 @@ call_method_test!(
     can_set_inverted_ols,
     set_output_logic_state,
     MODE2,
-    MODE2_DEFAULT | BitFlagMode2::Invrt as u8,
+    MODE2_DEFAULT | BitFlags::INVRT,
     OutputLogicState::Inverted
 );
 
@@ -43,7 +38,7 @@ fn can_use_external_clock() {
         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT]),
         I2cTrans::write(
             DEV_ADDR,
-            vec![Register::MODE1, MODE1_DEFAULT | BitFlagMode1::ExtClk as u8],
+            vec![Register::MODE1, MODE1_DEFAULT | BitFlags::EXT_CLK],
         ),
     ];
     let mut pwm = new(&trans);
@@ -66,19 +61,13 @@ fn set_prescale_stops_and_restarts_oscillator() {
     let trans = [
         I2cTrans::write(
             DEV_ADDR,
-            vec![
-                Register::MODE1,
-                MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8),
-            ],
+            vec![Register::MODE1, MODE1_DEFAULT & !BitFlags::SLEEP],
         ),
         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_DEFAULT]),
         I2cTrans::write(DEV_ADDR, vec![Register::PRE_SCALE, 3]),
         I2cTrans::write(
             DEV_ADDR,
-            vec![
-                Register::MODE1,
-                MODE1_DEFAULT & !(BitFlagMode1::Sleep as u8),
-            ],
+            vec![Register::MODE1, MODE1_DEFAULT & !BitFlags::SLEEP],
         ),
     ];
     let mut pwm = new(&trans);
