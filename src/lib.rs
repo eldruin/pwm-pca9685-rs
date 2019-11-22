@@ -275,5 +275,6 @@ mod config;
 mod device_impl;
 mod types;
 pub use types::{
-    Channel, Error, OutputLogicState, OutputStateChange, Pca9685, ProgrammableAddress, SlaveAddr,
+    Channel, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685,
+    ProgrammableAddress, SlaveAddr,
 };

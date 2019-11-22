@@ -1,6 +1,8 @@
 use hal::blocking::delay::DelayUs;
 use ProgrammableAddress;
-use {hal, nb, Channel, Error, OutputLogicState, OutputStateChange, Pca9685, SlaveAddr};
+use {
+    hal, nb, Channel, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685, SlaveAddr,
+};
 
 struct Register;
 impl Register {
@@ -216,6 +218,15 @@ where
         let config = match change_behavior {
             OutputStateChange::OnStop => self.config.with_low(BitFlagMode2::Och),
             OutputStateChange::OnAck => self.config.with_high(BitFlagMode2::Och),
+        };
+        self.write_mode2(config)
+    }
+
+    /// Set the output driver configuration.
+    pub fn set_output_driver(&mut self, driver: OutputDriver) -> Result<(), Error<E>> {
+        let config = match driver {
+            OutputDriver::TotemPole => self.config.with_high(BitFlagMode2::OutDrv),
+            OutputDriver::OpenDrain => self.config.with_low(BitFlagMode2::OutDrv),
         };
         self.write_mode2(config)
     }

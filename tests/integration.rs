@@ -1,5 +1,5 @@
 extern crate pwm_pca9685 as pca9685;
-use pca9685::{OutputLogicState, OutputStateChange};
+use pca9685::{OutputDriver, OutputLogicState, OutputStateChange};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 
@@ -90,4 +90,20 @@ call_method_test!(
     MODE2,
     MODE2_DEFAULT | BitFlags::OCH,
     OutputStateChange::OnAck
+);
+
+call_method_test!(
+    can_set_out_driver_totem_pole,
+    set_output_driver,
+    MODE2,
+    MODE2_DEFAULT | BitFlags::OUT_DRV,
+    OutputDriver::TotemPole
+);
+
+call_method_test!(
+    can_set_out_driver_open_drain,
+    set_output_driver,
+    MODE2,
+    MODE2_DEFAULT & !BitFlags::OUT_DRV,
+    OutputDriver::OpenDrain
 );

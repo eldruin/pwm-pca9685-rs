@@ -98,6 +98,21 @@ impl Default for OutputStateChange {
     }
 }
 
+/// Output driver configuration
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum OutputDriver {
+    /// Totem pole configuration (default).
+    TotemPole,
+    /// Open-drain configuration
+    OpenDrain,
+}
+
+impl Default for OutputDriver {
+    fn default() -> Self {
+        OutputDriver::TotemPole
+    }
+}
+
 /// Additional programmable address types (volatile programming)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ProgrammableAddress {
@@ -163,6 +178,7 @@ mod tests {
 
     default_test!(default_out_logic_state, OutputLogicState, Direct);
     default_test!(default_out_change, OutputStateChange, OnStop);
+    default_test!(default_out_driver, OutputDriver, TotemPole);
 
     #[test]
     fn can_get_default_address() {
