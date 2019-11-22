@@ -18,6 +18,7 @@ pub enum BitFlagMode1 {
 
 pub enum BitFlagMode2 {
     Invrt = 0b0001_0000,
+    Och = 0b0000_1000,
     OutDrv = 0b0000_0100,
 }
 

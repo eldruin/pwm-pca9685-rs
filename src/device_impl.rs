@@ -1,6 +1,6 @@
 use hal::blocking::delay::DelayUs;
 use ProgrammableAddress;
-use {hal, nb, Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
+use {hal, nb, Channel, Error, OutputLogicState, OutputStateChange, Pca9685, SlaveAddr};
 
 struct Register;
 impl Register {
@@ -203,6 +203,21 @@ where
         } else {
             Ok(())
         }
+    }
+
+    /// Set the output change behavior. Either byte-by-byte or all at the same time.
+    ///
+    /// Note that update on ACK requires all 4 PWM channel registers to be loaded before
+    /// outputs are changed on the last ACK.
+    pub fn set_output_change_behavior(
+        &mut self,
+        change_behavior: OutputStateChange,
+    ) -> Result<(), Error<E>> {
+        let config = match change_behavior {
+            OutputStateChange::OnStop => self.config.with_low(BitFlagMode2::Och),
+            OutputStateChange::OnAck => self.config.with_high(BitFlagMode2::Och),
+        };
+        self.write_mode2(config)
     }
 
     /// Set the `ON` counter for the selected channel.

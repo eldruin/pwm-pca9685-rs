@@ -1,5 +1,5 @@
 extern crate pwm_pca9685 as pca9685;
-use pca9685::OutputLogicState;
+use pca9685::{OutputLogicState, OutputStateChange};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 
@@ -75,3 +75,19 @@ fn set_prescale_stops_and_restarts_oscillator() {
     pwm.set_prescale(3).unwrap();
     destroy(pwm);
 }
+
+call_method_test!(
+    can_set_out_change_on_stop,
+    set_output_change_behavior,
+    MODE2,
+    MODE2_DEFAULT,
+    OutputStateChange::OnStop
+);
+
+call_method_test!(
+    can_set_out_change_on_ack,
+    set_output_change_behavior,
+    MODE2,
+    MODE2_DEFAULT | BitFlags::OCH,
+    OutputStateChange::OnAck
+);

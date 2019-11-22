@@ -79,6 +79,25 @@ impl Default for OutputLogicState {
     }
 }
 
+/// Output state change behavior
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum OutputStateChange {
+    /// Outputs change on STOP. (default)
+    ///
+    /// This will update the outputs all at the same time.
+    OnStop,
+    /// Outputs change on ACK.
+    ///
+    /// This will update the outputs byte by byte.
+    OnAck,
+}
+
+impl Default for OutputStateChange {
+    fn default() -> Self {
+        OutputStateChange::OnStop
+    }
+}
+
 /// Additional programmable address types (volatile programming)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ProgrammableAddress {
@@ -143,6 +162,7 @@ mod tests {
     }
 
     default_test!(default_out_logic_state, OutputLogicState, Direct);
+    default_test!(default_out_change, OutputStateChange, OnStop);
 
     #[test]
     fn can_get_default_address() {

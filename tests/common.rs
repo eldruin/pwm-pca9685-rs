@@ -70,6 +70,7 @@ impl BitFlags {
     pub const SUBADDR3: u8 = 0b0000_0010;
     pub const ALL_CALL_ADDR: u8 = 0b0000_0001;
     pub const INVRT: u8 = 0b0001_0000;
+    pub const OCH: u8 = 0b0000_1000;
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
