@@ -4,7 +4,77 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 
 mod common;
-use common::{destroy, new, Register, DEV_ADDR, MODE1_AI};
+use common::{assert_invalid_input_data, destroy, new, Register, DEV_ADDR, MODE1_AI};
+
+invalid_test!(
+    cannot_set_channel_on_invalid_value,
+    set_channel_on,
+    Channel::C0,
+    4096
+);
+
+invalid_test!(
+    cannot_set_channel_full_on_invalid_value,
+    set_channel_full_on,
+    Channel::C0,
+    4096
+);
+
+invalid_test!(
+    cannot_set_channel_off_invalid_value,
+    set_channel_off,
+    Channel::C0,
+    4096
+);
+
+invalid_test!(
+    cannot_set_channel_on_off_invalid_value_on,
+    set_channel_on_off,
+    Channel::C0,
+    4096,
+    0
+);
+
+invalid_test!(
+    cannot_set_channel_on_off_invalid_value_off,
+    set_channel_on_off,
+    Channel::C0,
+    0,
+    4096
+);
+
+invalid_test!(
+    cannot_set_all_on_off_invalid_value_on,
+    set_all_on_off,
+    &[4096; 16],
+    &[0; 16]
+);
+
+invalid_test!(
+    cannot_set_all_on_off_invalid_value_off,
+    set_all_on_off,
+    &[0; 16],
+    &[4096; 16]
+);
+
+#[test]
+fn sets_autoincrement_just_once() {
+    let trans = [
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+        I2cTrans::write(
+            DEV_ADDR,
+            vec![Register::ALL_C_ON_L, 0b1111_1111, 0b0000_1111],
+        ),
+        I2cTrans::write(
+            DEV_ADDR,
+            vec![Register::ALL_C_ON_L, 0b1111_1111, 0b0000_1111],
+        ),
+    ];
+    let mut pwm = new(&trans);
+    pwm.set_channel_on(Channel::All, 4095).unwrap();
+    pwm.set_channel_on(Channel::All, 4095).unwrap();
+    destroy(pwm);
+}
 
 macro_rules! channels_test {
     ($($channel:ident, $reg_on:ident, $reg_off:ident),*) => {
