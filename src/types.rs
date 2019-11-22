@@ -63,7 +63,7 @@ pub enum Channel {
 /// Output logic state inversion
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum OutputLogicState {
-    /// Output logic state is not inverted.
+    /// Output logic state is not inverted (default).
     ///
     /// Value to set when external driver is used. Applicable when `OE = 0`.
     Direct,
@@ -71,6 +71,12 @@ pub enum OutputLogicState {
     ///
     /// Value to set when no external driver is used. Applicable when `OE = 0`.
     Inverted,
+}
+
+impl Default for OutputLogicState {
+    fn default() -> Self {
+        OutputLogicState::Direct
+    }
 }
 
 /// Additional programmable address types (volatile programming)
@@ -126,6 +132,17 @@ impl SlaveAddr {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    macro_rules! default_test {
+        ($name:ident, $type:ident, $default:ident) => {
+            #[test]
+            fn $name() {
+                assert_eq!($type::$default, $type::default());
+            }
+        };
+    }
+
+    default_test!(default_out_logic_state, OutputLogicState, Direct);
 
     #[test]
     fn can_get_default_address() {
