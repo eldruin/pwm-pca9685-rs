@@ -17,6 +17,10 @@ pub struct Register;
 impl Register {
     pub const MODE1: u8 = 0x00;
     pub const MODE2: u8 = 0x01;
+    pub const SUBADDR1: u8 = 0x02;
+    pub const SUBADDR2: u8 = 0x03;
+    pub const SUBADDR3: u8 = 0x04;
+    pub const ALL_CALL_ADDR: u8 = 0x05;
     pub const C0_ON_L: u8 = 0x06;
     pub const C0_OFF_L: u8 = 0x08;
     pub const C1_ON_L: u8 = 0x0A;
@@ -59,6 +63,10 @@ pub enum BitFlagMode1 {
     ExtClk = 0b0100_0000,
     AutoInc = 0b0010_0000,
     Sleep = 0b0001_0000,
+    Subaddress1 = 0b0000_1000,
+    Subaddress2 = 0b0000_0100,
+    Subaddress3 = 0b0000_0010,
+    AllCall = 0b0000_0001,
 }
 
 #[allow(unused)]
@@ -95,19 +103,19 @@ fn check_assert_fails() {
 
 #[macro_export]
 macro_rules! call_method_test {
-    ($name:ident, $method:ident, $reg:ident, $value:expr $(,$arg:expr),*) => {
+    ($name:ident, $method:ident, $reg:ident, $value:expr $(,$arg:expr)*) => {
         #[test]
         fn $name() {
             let trans = [I2cTrans::write(DEV_ADDR, vec![Register::$reg, $value])];
             let mut pwm = new(&trans);
-            pwm.$method( $($arg)* ).unwrap();
+            pwm.$method( $($arg),* ).unwrap();
             destroy(pwm);
         }
     };
 }
 
 #[macro_export]
-macro_rules! set_invalid_test {
+macro_rules! invalid_test {
     ($name:ident, $method:ident, $($args:expr),*) => {
         #[test]
         fn $name() {

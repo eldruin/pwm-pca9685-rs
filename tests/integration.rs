@@ -51,7 +51,7 @@ fn can_use_external_clock() {
     destroy(pwm);
 }
 
-set_invalid_test!(cannot_set_prescale_too_small, set_prescale, 2);
+invalid_test!(cannot_set_prescale_too_small, set_prescale, 2);
 
 #[test]
 fn can_set_prescale() {
@@ -87,28 +87,28 @@ fn set_prescale_stops_and_restarts_oscillator() {
     destroy(pwm);
 }
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_channel_on_invalid_value,
     set_channel_on,
     Channel::C0,
     4096
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_channel_full_on_invalid_value,
     set_channel_full_on,
     Channel::C0,
     4096
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_channel_off_invalid_value,
     set_channel_off,
     Channel::C0,
     4096
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_channel_on_off_invalid_value_on,
     set_channel_on_off,
     Channel::C0,
@@ -116,7 +116,7 @@ set_invalid_test!(
     0
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_channel_on_off_invalid_value_off,
     set_channel_on_off,
     Channel::C0,
@@ -124,14 +124,14 @@ set_invalid_test!(
     4096
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_all_on_off_invalid_value_on,
     set_all_on_off,
     &[4096; 16],
     &[0; 16]
 );
 
-set_invalid_test!(
+invalid_test!(
     cannot_set_all_on_off_invalid_value_off,
     set_all_on_off,
     &[0; 16],

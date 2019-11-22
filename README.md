@@ -20,6 +20,9 @@ This driver allows you to:
 - Set the prescale value. See `set_prescale()`.
 - Select the output logic state direct or inverted. See `set_output_logic_state()`.
 - Select the EXTCLK pin as clock source. See `use_external_clock()`.
+- Enable/disable a programmable address. See `enable_programmable_address()`.
+- Set a programmable address. See `set_programmable_address()`.
+- Change the address used by the driver. See `set_address()`.
 
 ## The device
 

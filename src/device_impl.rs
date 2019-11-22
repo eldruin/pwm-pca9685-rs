@@ -1,9 +1,14 @@
+use ProgrammableAddress;
 use {hal, Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
 
 struct Register;
 impl Register {
     const MODE1: u8 = 0x00;
     const MODE2: u8 = 0x01;
+    const SUBADDR1: u8 = 0x02;
+    const SUBADDR2: u8 = 0x03;
+    const SUBADDR3: u8 = 0x04;
+    const ALL_CALL_ADDR: u8 = 0x05;
     const C0_ON_L: u8 = 0x06;
     const C0_OFF_L: u8 = 0x08;
     const C1_ON_L: u8 = 0x0A;
@@ -71,6 +76,79 @@ where
     pub fn disable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::Sleep))
+    }
+
+    /// Set one of the programmable addresses.
+    ///
+    /// Initially these are not enabled. Once you set this, you can call
+    /// `enable_programmable_address()` and then use `set_address()` to configure
+    /// the driver to use the new address.
+    pub fn set_programmable_address(
+        &mut self,
+        address_type: ProgrammableAddress,
+        address: u8,
+    ) -> Result<(), Error<E>> {
+        self.check_address(address)?;
+        let reg = match address_type {
+            ProgrammableAddress::Subaddress1 => Register::SUBADDR1,
+            ProgrammableAddress::Subaddress2 => Register::SUBADDR2,
+            ProgrammableAddress::Subaddress3 => Register::SUBADDR3,
+            ProgrammableAddress::AllCall => Register::ALL_CALL_ADDR,
+        };
+        self.i2c
+            .write(self.address, &[reg, address])
+            .map_err(Error::I2C)
+    }
+
+    fn get_subaddr_bitflag(address_type: ProgrammableAddress) -> BitFlagMode1 {
+        match address_type {
+            ProgrammableAddress::Subaddress1 => BitFlagMode1::Subaddr1,
+            ProgrammableAddress::Subaddress2 => BitFlagMode1::Subaddr2,
+            ProgrammableAddress::Subaddress3 => BitFlagMode1::Subaddr3,
+            ProgrammableAddress::AllCall => BitFlagMode1::AllCall,
+        }
+    }
+
+    /// Enable responding to programmable address
+    pub fn enable_programmable_address(
+        &mut self,
+        address_type: ProgrammableAddress,
+    ) -> Result<(), Error<E>> {
+        let flag = Self::get_subaddr_bitflag(address_type);
+        let config = self.config;
+        self.write_mode1(config.with_high(flag))
+    }
+
+    /// Disable responding to programmable address
+    pub fn disable_programmable_address(
+        &mut self,
+        address_type: ProgrammableAddress,
+    ) -> Result<(), Error<E>> {
+        let flag = Self::get_subaddr_bitflag(address_type);
+        let config = self.config;
+        self.write_mode1(config.with_low(flag))
+    }
+
+    /// Sets the address used by the driver for communication.
+    ///
+    /// This does not have any effect on the hardware and is useful when
+    /// switching between programmable addresses and the fixed hardware address
+    /// for communication.
+    pub fn set_address(&mut self, address: u8) -> Result<(), Error<E>> {
+        self.check_address(address)?;
+        self.address = address;
+        Ok(())
+    }
+
+    fn check_address(&self, address: u8) -> Result<(), Error<E>> {
+        const LED_ALL_CALL: u8 = 0b111_0000;
+        // const SW_RESET: u8 = 0b000_0011; this gets absorbed by the high speed mode test
+        const HIGH_SPEED_MODE: u8 = 0b000_111;
+        if address == 0 || address > 0x7F || address == LED_ALL_CALL || address <= HIGH_SPEED_MODE {
+            Err(Error::InvalidInputData)
+        } else {
+            Ok(())
+        }
     }
 
     /// Set the `ON` counter for the selected channel.
@@ -349,4 +427,3 @@ fn get_register_off(channel: Channel) -> u8 {
         ALL_C_OFF_L
     )
 }
-

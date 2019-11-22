@@ -12,6 +12,9 @@
 //! - Set the prescale value. See [`set_prescale()`].
 //! - Select the output logic state direct or inverted. See [`set_output_logic_state()`].
 //! - Select the EXTCLK pin as clock source. See [`use_external_clock()`].
+//! - Enable/disable a programmable address. See [`enable_programmable_address()`].
+//! - Set a programmable address. See [`set_programmable_address()`].
+//! - Change the address used by the driver. See [`set_address()`].
 //!
 //! [`enable()`]: struct.Pca9685.html#method.enable
 //! [`set_channel_on()`]: struct.Pca9685.html#method.set_channel_on
@@ -21,6 +24,9 @@
 //! [`set_prescale()`]: struct.Pca9685.html#method.set_prescale
 //! [`set_output_logic_state()`]: struct.Pca9685.html#method.set_output_logic_state
 //! [`use_external_clock()`]: struct.Pca9685.html#method.use_external_clock
+//! [`enable_programmable_address()`]: struct.Pca9685.html#method.enable_programmable_address
+//! [`set_programmable_address()`]: struct.Pca9685.html#method.set_programmable_address
+//! [`set_address()`]: struct.Pca9685.html#method.set_address
 //!
 //! ## The device
 //!
@@ -200,6 +206,41 @@
 //! pwm.set_all_on_off(&on, &off);
 //! # }
 //! ```
+//! 
+//! ### Use a programmable address
+//! 
+//! Several additional addresses can be programmed for the device (they are
+//! volatile, though).
+//! Once set it is necessary to enable them so that the device responds to
+//! them. Then it is possible to change the address that the driver uses
+//! to communicate with the device.
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{Channel, Pca9685, SlaveAddr, ProgrammableAddress};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let hardware_address = SlaveAddr::default();
+//! let mut pwm = Pca9685::new(dev, hardware_address);
+//!
+//! let subaddr1 = 0x71;
+//! pwm.set_programmable_address(ProgrammableAddress::Subaddress1, subaddr1).unwrap();
+//! pwm.enable_programmable_address(ProgrammableAddress::Subaddress1).unwrap();
+//! 
+//! // Now communicate using the new address:
+//! pwm.set_address(subaddr1).unwrap();
+//! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
+//! 
+//! // The device will also respond to the hardware address:
+//! pwm.set_address(hardware_address.address()).unwrap();
+//! pwm.set_channel_on_off(Channel::C0, 2047, 0).unwrap();
+//! 
+//! // when done you can also disable responding to the additional address:
+//! pwm.disable_programmable_address(ProgrammableAddress::Subaddress1).unwrap();
+//! # }
+//! ```
 
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
@@ -209,4 +250,4 @@ extern crate embedded_hal as hal;
 mod config;
 mod device_impl;
 mod types;
-pub use types::{Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
+pub use types::{Channel, Error, OutputLogicState, Pca9685, ProgrammableAddress, SlaveAddr};

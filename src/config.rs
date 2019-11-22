@@ -9,6 +9,9 @@ pub enum BitFlagMode1 {
     ExtClk = 0b0100_0000,
     AutoInc = 0b0010_0000,
     Sleep = 0b0001_0000,
+    Subaddr1 = 0b0000_1000,
+    Subaddr2 = 0b0000_0100,
+    Subaddr3 = 0b0000_0010,
     AllCall = 0b0000_0001,
 }
 

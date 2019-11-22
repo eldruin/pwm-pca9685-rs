@@ -73,6 +73,19 @@ pub enum OutputLogicState {
     Inverted,
 }
 
+/// Additional programmable address types (volatile programming)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ProgrammableAddress {
+    /// Subaddress 1
+    Subaddress1,
+    /// Subaddress 2
+    Subaddress2,
+    /// Subaddress 3
+    Subaddress3,
+    /// LED all call address
+    AllCall,
+}
+
 /// Possible slave addresses
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SlaveAddr {
