@@ -80,12 +80,19 @@ pub fn destroy(pwm: Pca9685<I2cMock>) {
     pwm.destroy().done();
 }
 
+#[macro_export]
+macro_rules! assert_error {
+    ($result:expr, $err:path) => {
+        match $result {
+            Err($err) => (),
+            _ => panic!("Wrong result returned."),
+        }
+    };
+}
+
 #[allow(unused)]
 pub fn assert_invalid_input_data<T, E>(result: Result<T, Error<E>>) {
-    match result {
-        Err(Error::InvalidInputData) => (),
-        _ => panic!("Error::InvalidInputData not returned."),
-    }
+    assert_error!(result, Error::InvalidInputData);
 }
 
 #[test]
