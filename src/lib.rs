@@ -210,5 +210,3 @@ mod config;
 mod device_impl;
 mod types;
 pub use types::{Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
-
-const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;

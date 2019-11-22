@@ -1,4 +1,5 @@
 use config::Config;
+const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 /// PCA9685 PWM/Servo/LED controller.
 #[derive(Debug, Default)]
@@ -89,11 +90,15 @@ impl Default for SlaveAddr {
 }
 
 impl SlaveAddr {
-    pub(crate) fn addr(self, default: u8) -> u8 {
+    /// Get the I2C slave address
+    ///
+    /// This is useful when switching between programmable addresses and the
+    /// fixed hardware slave address.
+    pub fn address(self) -> u8 {
         match self {
-            SlaveAddr::Default => default,
+            SlaveAddr::Default => DEVICE_BASE_ADDRESS,
             SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0) => {
-                default
+                DEVICE_BASE_ADDRESS
                     | ((a5 as u8) << 5)
                     | ((a4 as u8) << 4)
                     | ((a3 as u8) << 3)
@@ -108,47 +113,10 @@ impl SlaveAddr {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use DEVICE_BASE_ADDRESS as DEV_ADDR;
 
     #[test]
     fn can_get_default_address() {
         let addr = SlaveAddr::default();
-        assert_eq!(DEV_ADDR, addr.addr(DEV_ADDR));
-    }
-
-    #[test]
-    fn can_generate_alternative_addresses() {
-        assert_eq!(
-            0b100_0000,
-            SlaveAddr::Alternative(false, false, false, false, false, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b100_0001,
-            SlaveAddr::Alternative(false, false, false, false, false, true).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b100_0010,
-            SlaveAddr::Alternative(false, false, false, false, true, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b100_0100,
-            SlaveAddr::Alternative(false, false, false, true, false, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b100_1000,
-            SlaveAddr::Alternative(false, false, true, false, false, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b101_0000,
-            SlaveAddr::Alternative(false, true, false, false, false, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b110_0000,
-            SlaveAddr::Alternative(true, false, false, false, false, false).addr(DEV_ADDR)
-        );
-        assert_eq!(
-            0b111_1111,
-            SlaveAddr::Alternative(true, true, true, true, true, true).addr(DEV_ADDR)
-        );
+        assert_eq!(DEVICE_BASE_ADDRESS, addr.address());
     }
 }
