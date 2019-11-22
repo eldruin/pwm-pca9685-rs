@@ -23,6 +23,7 @@ This driver allows you to:
 - Enable/disable a programmable address. See `enable_programmable_address()`.
 - Set a programmable address. See `set_programmable_address()`.
 - Change the address used by the driver. See `set_address()`.
+- Restart keeping the PWM register contents. See `enable_restart_and_disable()`.
 
 ## The device
 

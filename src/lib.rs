@@ -15,6 +15,7 @@
 //! - Enable/disable a programmable address. See [`enable_programmable_address()`].
 //! - Set a programmable address. See [`set_programmable_address()`].
 //! - Change the address used by the driver. See [`set_address()`].
+//! - Restart keeping the PWM register contents. See [`enable_restart_and_disable()`].
 //!
 //! [`enable()`]: struct.Pca9685.html#method.enable
 //! [`set_channel_on()`]: struct.Pca9685.html#method.set_channel_on
@@ -27,6 +28,7 @@
 //! [`enable_programmable_address()`]: struct.Pca9685.html#method.enable_programmable_address
 //! [`set_programmable_address()`]: struct.Pca9685.html#method.set_programmable_address
 //! [`set_address()`]: struct.Pca9685.html#method.set_address
+//! [`enable_restart_and_disable()`]: struct.Pca9685.html#method.enable_restart_and_disable
 //!
 //! ## The device
 //!
@@ -206,9 +208,9 @@
 //! pwm.set_all_on_off(&on, &off);
 //! # }
 //! ```
-//! 
+//!
 //! ### Use a programmable address
-//! 
+//!
 //! Several additional addresses can be programmed for the device (they are
 //! volatile, though).
 //! Once set it is necessary to enable them so that the device responds to
@@ -228,17 +230,38 @@
 //! let subaddr1 = 0x71;
 //! pwm.set_programmable_address(ProgrammableAddress::Subaddress1, subaddr1).unwrap();
 //! pwm.enable_programmable_address(ProgrammableAddress::Subaddress1).unwrap();
-//! 
+//!
 //! // Now communicate using the new address:
 //! pwm.set_address(subaddr1).unwrap();
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
-//! 
+//!
 //! // The device will also respond to the hardware address:
 //! pwm.set_address(hardware_address.address()).unwrap();
-//! pwm.set_channel_on_off(Channel::C0, 2047, 0).unwrap();
-//! 
+//! pwm.set_channel_on_off(Channel::C0, 2047, 4095).unwrap();
+//!
 //! // when done you can also disable responding to the additional address:
 //! pwm.disable_programmable_address(ProgrammableAddress::Subaddress1).unwrap();
+//! # }
+//! ```
+//!
+//! ### Put the device to sleep then restart previously active PWM channels
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate pwm_pca9685 as pca9685;
+//! use pca9685::{Channel, Pca9685, SlaveAddr};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut pwm = Pca9685::new(dev, SlaveAddr::default());
+//!
+//! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
+//! // Prepare for restart and put the device to sleep
+//! pwm.enable_restart_and_disable().unwrap();
+//! // ...
+//! // re-enable device and reactivate channel 0
+//! let mut delay = hal::Delay{};
+//! pwm.restart(&mut delay).unwrap();
 //! # }
 //! ```
 
@@ -246,6 +269,7 @@
 #![no_std]
 
 extern crate embedded_hal as hal;
+extern crate nb;
 
 mod config;
 mod device_impl;

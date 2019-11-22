@@ -1,5 +1,6 @@
+use hal::blocking::delay::DelayUs;
 use ProgrammableAddress;
-use {hal, Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
+use {hal, nb, Channel, Error, OutputLogicState, Pca9685, SlaveAddr};
 
 struct Register;
 impl Register {
@@ -50,7 +51,7 @@ use config::{BitFlagMode1, BitFlagMode2, Config};
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::blocking::i2c::Write<Error = E>,
+    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
@@ -76,6 +77,59 @@ where
     pub fn disable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::Sleep))
+    }
+
+    /// Put the controller to sleep while keeping the PWM register
+    /// contents in preparation for a future restart.
+    pub fn enable_restart_and_disable(&mut self) -> Result<(), Error<E>> {
+        let config = self.config.with_high(BitFlagMode1::Sleep);
+        self.write_mode1(config.with_high(BitFlagMode1::Restart))?;
+        // Do not store restart bit high as writing this bit high again
+        // would internally clear it to 0. Writing 0 has no effect.
+        self.config = config;
+        Ok(())
+    }
+
+    /// Re-enable the controller after a sleep with restart enabled so that
+    /// previously active PWM channels are restarted.
+    ///
+    /// This includes a delay of 500us in order for the oscillator to stabilize.
+    /// If you cannot afford a 500us delay you can use `restart_nonblocking()`.
+    pub fn restart(&mut self, delay: &mut impl DelayUs<u16>) -> Result<(), Error<E>> {
+        let mode1 = self.read_register(Register::MODE1)?;
+        if (mode1 & BitFlagMode1::Restart as u8) != 0 {
+            self.enable()?;
+            delay.delay_us(500_u16);
+            let previous = self.config;
+            let config = previous.with_high(BitFlagMode1::Restart);
+            self.write_mode1(config)?;
+            self.config = previous;
+        }
+        Ok(())
+    }
+
+    /// Re-enable the controller after a sleep with restart enabled so that
+    /// previously active PWM channels are restarted (non-blocking version).
+    ///
+    /// This is a nonblocking version where you are responsible for waiting at
+    /// least 500us after the receiving the first `WouldBlock` error before
+    /// calling again to continue.
+    pub fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
+        let mode1 = self.read_register(Register::MODE1)?;
+        let restart_high = (mode1 & BitFlagMode1::Restart as u8) != 0;
+        let sleep_high = (mode1 & BitFlagMode1::Sleep as u8) != 0;
+        if restart_high {
+            if sleep_high {
+                self.enable()?;
+                return Err(nb::Error::WouldBlock);
+            } else {
+                let previous = self.config;
+                let config = previous.with_high(BitFlagMode1::Restart);
+                self.write_mode1(config)?;
+                self.config = previous;
+            }
+        }
+        Ok(())
     }
 
     /// Set one of the programmable addresses.
@@ -367,6 +421,14 @@ where
         self.i2c
             .write(self.address, &[address, value as u8, (value >> 8) as u8])
             .map_err(Error::I2C)
+    }
+
+    fn read_register(&mut self, address: u8) -> Result<u8, Error<E>> {
+        let mut data = [0];
+        self.i2c
+            .write_read(self.address, &[address], &mut data)
+            .map_err(Error::I2C)
+            .and(Ok(data[0]))
     }
 }
 
