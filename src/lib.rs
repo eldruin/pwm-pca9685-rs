@@ -278,6 +278,9 @@ extern crate embedded_hal as hal;
 extern crate nb;
 
 mod config;
+mod register_access;
+use register_access::Register;
+mod channels;
 mod device_impl;
 mod types;
 pub use types::{
