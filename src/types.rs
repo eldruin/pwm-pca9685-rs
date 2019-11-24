@@ -113,6 +113,26 @@ impl Default for OutputDriver {
     }
 }
 
+/// Value set to all outputs when the output drivers are disabled (`OE` = 1).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum DisabledOutputValue {
+    /// Set all outputs to 0 (default).
+    Zero,
+    /// Set all outputs to a value dependent on the `OutputDriver` configuration.
+    ///
+    /// - Set all outputs to 1 for `OutputDriver::TotemPole`.
+    /// - Set all outputs to high-impedance for `OutputDriver::OpenDrain`.
+    OutputDriver,
+    /// Set all outputs to high-impedance.
+    HighImpedance,
+}
+
+impl Default for DisabledOutputValue {
+    fn default() -> Self {
+        DisabledOutputValue::Zero
+    }
+}
+
 /// Additional programmable address types (volatile programming)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ProgrammableAddress {
@@ -179,6 +199,7 @@ mod tests {
     default_test!(default_out_logic_state, OutputLogicState, Direct);
     default_test!(default_out_change, OutputStateChange, OnStop);
     default_test!(default_out_driver, OutputDriver, TotemPole);
+    default_test!(default_disabled_out_value, DisabledOutputValue, Zero);
 
     #[test]
     fn can_get_default_address() {

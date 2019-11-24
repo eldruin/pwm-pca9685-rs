@@ -72,6 +72,8 @@ impl BitFlags {
     pub const INVRT: u8 = 0b0001_0000;
     pub const OCH: u8 = 0b0000_1000;
     pub const OUT_DRV: u8 = 0b0000_0100;
+    pub const OUTNE1: u8 = 0b0000_0010;
+    pub const OUTNE0: u8 = 0b0000_0001;
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {

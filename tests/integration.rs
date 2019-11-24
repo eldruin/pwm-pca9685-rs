@@ -1,5 +1,5 @@
 extern crate pwm_pca9685 as pca9685;
-use pca9685::{OutputDriver, OutputLogicState, OutputStateChange};
+use pca9685::{DisabledOutputValue, OutputDriver, OutputLogicState, OutputStateChange};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 
@@ -106,4 +106,28 @@ call_method_test!(
     MODE2,
     MODE2_DEFAULT & !BitFlags::OUT_DRV,
     OutputDriver::OpenDrain
+);
+
+call_method_test!(
+    can_set_dis_out_value_zero,
+    set_disabled_output_value,
+    MODE2,
+    MODE2_DEFAULT,
+    DisabledOutputValue::Zero
+);
+
+call_method_test!(
+    can_set_dis_out_value_out_driver,
+    set_disabled_output_value,
+    MODE2,
+    MODE2_DEFAULT | BitFlags::OUTNE0,
+    DisabledOutputValue::OutputDriver
+);
+
+call_method_test!(
+    can_set_dis_out_value_high_imp,
+    set_disabled_output_value,
+    MODE2,
+    MODE2_DEFAULT | BitFlags::OUTNE1,
+    DisabledOutputValue::HighImpedance
 );

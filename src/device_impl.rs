@@ -1,7 +1,8 @@
 use hal::blocking::delay::DelayUs;
 use ProgrammableAddress;
 use {
-    hal, nb, Channel, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685, SlaveAddr,
+    hal, nb, Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState,
+    OutputStateChange, Pca9685, SlaveAddr,
 };
 
 struct Register;
@@ -227,6 +228,28 @@ where
         let config = match driver {
             OutputDriver::TotemPole => self.config.with_high(BitFlagMode2::OutDrv),
             OutputDriver::OpenDrain => self.config.with_low(BitFlagMode2::OutDrv),
+        };
+        self.write_mode2(config)
+    }
+
+    /// Set the output value when outputs are disabled (`OE` = 1).
+    pub fn set_disabled_output_value(
+        &mut self,
+        value: DisabledOutputValue,
+    ) -> Result<(), Error<E>> {
+        let config = match value {
+            DisabledOutputValue::Zero => self
+                .config
+                .with_low(BitFlagMode2::OutNe0)
+                .with_low(BitFlagMode2::OutNe1),
+            DisabledOutputValue::OutputDriver => self
+                .config
+                .with_high(BitFlagMode2::OutNe0)
+                .with_low(BitFlagMode2::OutNe1),
+            DisabledOutputValue::HighImpedance => self
+                .config
+                .with_low(BitFlagMode2::OutNe0)
+                .with_high(BitFlagMode2::OutNe1),
         };
         self.write_mode2(config)
     }

@@ -20,6 +20,8 @@ pub enum BitFlagMode2 {
     Invrt = 0b0001_0000,
     Och = 0b0000_1000,
     OutDrv = 0b0000_0100,
+    OutNe1 = 0b0000_0010,
+    OutNe0 = 0b0000_0001,
 }
 
 impl From<BitFlagMode1> for BitFlag {
