@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ...
 
+## [0.2.0]
+
+### Added
+
+- Support programmable addresses.
+- Support restarting while keeping PWM register contents.
+- Support configuring the output drivers.
+- Support configuring the output change behavior.
+- Support configuring the disabled output value.
+
+### Changed
+
+- Raise the minimum supported Rust version to 1.34 due to `core::convert::TryFrom`
+  which is now implemented for `Channel`.
+
 ## [0.1.2] - 2019-11-22
 
 ### Added
@@ -27,7 +42,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 This is the initial release to crates.io. All changes will be documented in this CHANGELOG.
 
-[Unreleased]: https://github.com/eldruin/pwm-pca9685-rs/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/eldruin/pwm-pca9685-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/eldruin/pwm-pca9685-rs/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/eldruin/pwm-pca9685-rs/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/eldruin/pwm-pca9685-rs/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/eldruin/pwm-pca9685-rs/releases/tag/v0.1.0
