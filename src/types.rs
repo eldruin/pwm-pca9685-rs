@@ -1,4 +1,5 @@
 use config::Config;
+use core::convert::TryFrom;
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 /// PCA9685 PWM/Servo/LED controller.
@@ -59,6 +60,35 @@ pub enum Channel {
     /// All channels
     All,
 }
+macro_rules! match_channel {
+    ($value:expr, $($v:expr, $C:ident),*) => {
+        match $value {
+            $(
+                $v => Ok(Channel::$C),
+            )*
+            _ => Err(()),
+        }
+    };
+}
+
+macro_rules! impl_try_from_for_channel {
+    ($T:ty) => {
+        impl TryFrom<$T> for Channel {
+            type Error = ();
+
+            /// Will return an empty error for a value outside the range [0-15].
+            fn try_from(value: $T) -> Result<Self, Self::Error> {
+                match_channel!(
+                    value, 0, C0, 1, C1, 2, C2, 3, C3, 4, C4, 5, C5, 6, C6, 7, C7, 8, C8, 9, C9,
+                    10, C10, 11, C11, 12, C12, 13, C13, 14, C14, 15, C15
+                )
+            }
+        }
+    };
+}
+impl_try_from_for_channel!(u8);
+impl_try_from_for_channel!(u16);
+impl_try_from_for_channel!(usize);
 
 /// Output logic state inversion
 #[derive(Debug, Clone, Copy, PartialEq)]

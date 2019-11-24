@@ -2,9 +2,49 @@ extern crate pwm_pca9685 as pca9685;
 use pca9685::Channel;
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
+use std::convert::TryFrom;
 
 mod common;
 use common::{assert_invalid_input_data, destroy, new, Register, DEV_ADDR, MODE1_AI};
+
+macro_rules! can_convert_channel {
+    ($t:ty, $($value:expr, $channel:ident),*) => {
+        $(
+            assert_eq!(Channel::$channel, Channel::try_from($value as $t).unwrap());
+        )*
+    };
+}
+
+#[test]
+fn can_convert_channel_u8() {
+    can_convert_channel!(
+        u8, 0, C0, 1, C1, 2, C2, 3, C3, 4, C4, 5, C5, 6, C6, 7, C7, 8, C8, 9, C9, 10, C10, 11, C11,
+        12, C12, 13, C13, 14, C14, 15, C15
+    );
+}
+
+#[test]
+fn can_convert_channel_u16() {
+    can_convert_channel!(
+        u16, 0, C0, 1, C1, 2, C2, 3, C3, 4, C4, 5, C5, 6, C6, 7, C7, 8, C8, 9, C9, 10, C10, 11,
+        C11, 12, C12, 13, C13, 14, C14, 15, C15
+    );
+}
+
+#[test]
+fn can_convert_channel_usize() {
+    can_convert_channel!(
+        usize, 0, C0, 1, C1, 2, C2, 3, C3, 4, C4, 5, C5, 6, C6, 7, C7, 8, C8, 9, C9, 10, C10, 11,
+        C11, 12, C12, 13, C13, 14, C14, 15, C15
+    );
+}
+
+#[test]
+fn convert_channel_out_of_bounds() {
+    assert_eq!(Err(()), Channel::try_from(16_u8));
+    assert_eq!(Err(()), Channel::try_from(16_u16));
+    assert_eq!(Err(()), Channel::try_from(16_usize));
+}
 
 invalid_test!(
     cannot_set_channel_on_invalid_value,
