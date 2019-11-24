@@ -324,7 +324,7 @@ where
 
     /// Set the output logic state
     ///
-    /// This allows for inversion of the output logic.
+    /// This allows for inversion of the output logic. Applicable when `OE = 0`.
     pub fn set_output_logic_state(&mut self, state: OutputLogicState) -> Result<(), Error<E>> {
         let config = self.config;
         match state {
