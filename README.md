@@ -12,18 +12,21 @@ controller, based on the [`embedded-hal`] traits.
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 
 This driver allows you to:
-- Enable/disable the device. See `enable()`.
-- Set the _on_ and _off_ counter for a channel or all of them. See `set_channel_on()`.
-- Set the _on_ and _off_ counters for a channel or all of them at once. See `set_channel_on_off()`.
-- Set a channel to be always on or off. See `set_channel_full_on()`.
-- Set the _on_ and _off_ counters for each channel at once. See `set_all_on_off()`.
-- Set the prescale value. See `set_prescale()`.
-- Select the output logic state direct or inverted. See `set_output_logic_state()`.
-- Select the EXTCLK pin as clock source. See `use_external_clock()`.
-- Enable/disable a programmable address. See `enable_programmable_address()`.
-- Set a programmable address. See `set_programmable_address()`.
-- Change the address used by the driver. See `set_address()`.
-- Restart keeping the PWM register contents. See `enable_restart_and_disable()`.
+- Enable/disable the device. See: `enable()`.
+- Set the _on_ and _off_ counter for a channel or all of them. See: `set_channel_on()`.
+- Set the _on_ and _off_ counters for a channel or all of them at once. See: `set_channel_on_off()`.
+- Set a channel to be always on or off. See: `set_channel_full_on()`.
+- Set the _on_ and _off_ counters for each channel at once. See: `set_all_on_off()`.
+- Set the prescale value. See: `set_prescale()`.
+- Select the output logic state direct or inverted. See: `set_output_logic_state()`.
+- Set when the outputs change. See: `set_output_change_behavior()`.
+- Set the output driver configuration. See: `set_output_driver()`.
+- Set the output value when outputs are disabled. See: `set_disabled_output_value()]
+- Select the EXTCLK pin as clock source. See: `use_external_clock()`.
+- Enable/disable a programmable address. See: `enable_programmable_address()`.
+- Set a programmable address. See: `set_programmable_address()`.
+- Change the address used by the driver. See: `set_address()`.
+- Restart keeping the PWM register contents. See: `enable_restart_and_disable()`.
 
 ## The device
 
