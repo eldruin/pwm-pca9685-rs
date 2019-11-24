@@ -4,7 +4,6 @@
 [![Docs](https://docs.rs/pwm-pca9685/badge.svg)](https://docs.rs/pwm-pca9685)
 [![Build Status](https://travis-ci.org/eldruin/pwm-pca9685-rs.svg?branch=master)](https://travis-ci.org/eldruin/pwm-pca9685-rs)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/pwm-pca9685-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/pwm-pca9685-rs?branch=master)
-![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the PCA9685 PWM/Servo/LED
 controller, based on the [`embedded-hal`] traits.

@@ -22,7 +22,6 @@ include = [
 [badges]
 travis-ci = { repository = "eldruin/pwm-pca9685-rs", branch = "master" }
 coveralls = { repository = "eldruin/pwm-pca9685-rs", branch = "master", service = "github" }
-maintenance = { status = "actively-developed" }
 
 [dependencies]
 embedded-hal = "0.2"
