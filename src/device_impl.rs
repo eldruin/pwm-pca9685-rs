@@ -1,14 +1,14 @@
-use config::{BitFlagMode1, BitFlagMode2, Config};
-use hal::blocking::delay::DelayUs;
-use ProgrammableAddress;
-use {
-    hal, nb, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
-    Pca9685, Register, SlaveAddr,
+use crate::{
+    config::{BitFlagMode1, BitFlagMode2, Config},
+    hal::{blocking::delay::DelayUs, blocking::i2c},
+    DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685,
+    ProgrammableAddress, Register, SlaveAddr,
 };
+use nb;
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+    I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {

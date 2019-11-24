@@ -274,16 +274,15 @@
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
 
-extern crate embedded_hal as hal;
-extern crate nb;
+use embedded_hal as hal;
 
 mod config;
 mod register_access;
-use register_access::Register;
+use crate::register_access::Register;
 mod channels;
 mod device_impl;
 mod types;
-pub use types::{
+pub use crate::types::{
     Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
     Pca9685, ProgrammableAddress, SlaveAddr,
 };

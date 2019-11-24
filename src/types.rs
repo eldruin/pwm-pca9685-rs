@@ -1,4 +1,4 @@
-use config::Config;
+use crate::config::Config;
 use core::convert::TryFrom;
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 

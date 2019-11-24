@@ -1,10 +1,8 @@
-extern crate pwm_pca9685 as pca9685;
-use pca9685::ProgrammableAddress as ProgAddr;
-extern crate embedded_hal_mock as hal;
-use hal::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::{delay::MockNoop as DelayMock, i2c::Transaction as I2cTrans};
+use pwm_pca9685::ProgrammableAddress as ProgAddr;
 
 mod common;
-use common::{destroy, new, BitFlags, Register, DEV_ADDR, MODE1_DEFAULT};
+use crate::common::{destroy, new, BitFlags, Register, DEV_ADDR, MODE1_DEFAULT};
 
 #[test]
 fn restart_is_only_set_once() {
@@ -52,7 +50,7 @@ fn restart_does_nothing_if_not_enabled() {
         vec![Register::MODE1],
         vec![MODE1_DEFAULT],
     )];
-    let mut delay = hal::delay::MockNoop::new();
+    let mut delay = DelayMock::new();
     let mut pwm = new(&trans);
     pwm.restart(&mut delay).unwrap();
     destroy(pwm);
@@ -99,7 +97,7 @@ fn can_disable_then_restart() {
     ];
     let mut pwm = new(&trans);
     pwm.enable_restart_and_disable().unwrap();
-    let mut delay = hal::delay::MockNoop::new();
+    let mut delay = DelayMock::new();
     pwm.restart(&mut delay).unwrap();
     destroy(pwm);
 }

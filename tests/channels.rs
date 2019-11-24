@@ -1,11 +1,9 @@
-extern crate pwm_pca9685 as pca9685;
-use pca9685::Channel;
-extern crate embedded_hal_mock as hal;
-use hal::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use pwm_pca9685::Channel;
 use std::convert::TryFrom;
 
 mod common;
-use common::{assert_invalid_input_data, destroy, new, Register, DEV_ADDR, MODE1_AI};
+use self::common::{assert_invalid_input_data, destroy, new, Register, DEV_ADDR, MODE1_AI};
 
 macro_rules! can_convert_channel {
     ($t:ty, $($value:expr, $channel:ident),*) => {

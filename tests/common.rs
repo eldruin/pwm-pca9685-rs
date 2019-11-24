@@ -1,7 +1,5 @@
-extern crate pwm_pca9685 as pca9685;
-use pca9685::{Error, Pca9685, SlaveAddr};
-extern crate embedded_hal_mock as hal;
-use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
+use embedded_hal_mock::i2c::{Mock as I2cMock, Transaction as I2cTrans};
+use pwm_pca9685::{Error, Pca9685, SlaveAddr};
 
 #[allow(unused)]
 pub const DEV_ADDR: u8 = 0b100_0000;

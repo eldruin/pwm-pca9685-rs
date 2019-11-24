@@ -1,4 +1,4 @@
-use {hal, Channel, Error, Pca9685, Register};
+use crate::{hal, Channel, Error, Pca9685, Register};
 
 impl<I2C, E> Pca9685<I2C>
 where

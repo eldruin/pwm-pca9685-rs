@@ -1,4 +1,8 @@
-use {hal, Error, Pca9685};
+use crate::{
+    config::{BitFlagMode1, Config},
+    hal::blocking::i2c,
+    Error, Pca9685,
+};
 
 pub struct Register;
 impl Register {
@@ -45,11 +49,9 @@ impl Register {
     pub const PRE_SCALE: u8 = 0xFE;
 }
 
-use config::{BitFlagMode1, Config};
-
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+    I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
 {
     pub(crate) fn write_mode2(&mut self, config: Config) -> Result<(), Error<E>> {
         self.i2c

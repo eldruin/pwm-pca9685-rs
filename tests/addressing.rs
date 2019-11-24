@@ -1,9 +1,8 @@
-extern crate embedded_hal_mock as hal;
-use hal::i2c::Transaction as I2cTrans;
-extern crate pwm_pca9685 as pca9685;
-use pca9685::{ProgrammableAddress as ProgAddr, SlaveAddr};
+use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use pwm_pca9685::{ProgrammableAddress as ProgAddr, SlaveAddr};
+
 mod common;
-use common::{
+use self::common::{
     assert_invalid_input_data, destroy, new, BitFlags, Register, DEV_ADDR, MODE1_DEFAULT,
 };
 
