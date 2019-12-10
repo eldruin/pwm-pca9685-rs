@@ -58,8 +58,7 @@
 //! It is optimized to be used as an LED controller for Red/Green/Blue/Amber
 //! (RGBA) color backlighting applications.
 //!
-//! Datasheet:
-//! - [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
+//! Datasheet: [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 //!
 //! ## Usage examples (see also examples folder)
 //!

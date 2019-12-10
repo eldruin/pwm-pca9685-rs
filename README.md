@@ -49,9 +49,7 @@ discrete components for larger current, higher voltage LEDs, etc.
 It is optimized to be used as an LED controller for Red/Green/Blue/Amber
 (RGBA) color backlighting applications.
 
-Datasheet:
-- [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
-
+Datasheet: [PCA9685](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)
 
 ## Usage
 
