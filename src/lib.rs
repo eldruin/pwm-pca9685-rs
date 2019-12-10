@@ -36,6 +36,8 @@
 //! [`set_address()`]: struct.Pca9685.html#method.set_address
 //! [`enable_restart_and_disable()`]: struct.Pca9685.html#method.enable_restart_and_disable
 //!
+//! [Introductory blog post](https://blog.eldruin.com/pca9685-pwm-led-servo-controller-driver-in-rust/)
+//! 
 //! ## The device
 //!
 //! This device is an I2C-bus controlled 16-channel, 12-bit PWM controller.

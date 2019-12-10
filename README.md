@@ -27,6 +27,8 @@ This driver allows you to:
 - Change the address used by the driver. See: `set_address()`.
 - Restart keeping the PWM register contents. See: `enable_restart_and_disable()`.
 
+[Introductory blog post](https://blog.eldruin.com/pca9685-pwm-led-servo-controller-driver-in-rust/)
+
 ## The device
 
 This device is an I2C-bus controlled 16-channel, 12-bit PWM controller.
