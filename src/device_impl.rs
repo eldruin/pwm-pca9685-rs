@@ -72,17 +72,17 @@ where
     /// least 500us after the receiving the first `WouldBlock` error before
     /// calling again to continue.
     pub fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
-        let mode1 = self.read_register(Register::MODE1)?;
+        let mode1 = self.read_register(Register::MODE1).map_err(nb::Error::Other)?;
         let restart_high = (mode1 & BitFlagMode1::Restart as u8) != 0;
         let sleep_high = (mode1 & BitFlagMode1::Sleep as u8) != 0;
         if restart_high {
             if sleep_high {
-                self.enable()?;
+                self.enable().map_err(nb::Error::Other)?;
                 return Err(nb::Error::WouldBlock);
             } else {
                 let previous = self.config;
                 let config = previous.with_high(BitFlagMode1::Restart);
-                self.write_mode1(config)?;
+                self.write_mode1(config).map_err(nb::Error::Other)?;
                 self.config = previous;
             }
         }

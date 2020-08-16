@@ -183,6 +183,8 @@ pub enum SlaveAddr {
     Default,
     /// Alternative slave address providing bit values for A5, A4, A3, A2, A1 and A0
     Alternative(bool, bool, bool, bool, bool, bool),
+    /// Integer alternative slave address
+    Integer(u8),
 }
 
 impl Default for SlaveAddr {
@@ -200,6 +202,7 @@ impl SlaveAddr {
     pub fn address(self) -> u8 {
         match self {
             SlaveAddr::Default => DEVICE_BASE_ADDRESS,
+            SlaveAddr::Integer(v) => v,
             SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0) => {
                 DEVICE_BASE_ADDRESS
                     | ((a5 as u8) << 5)
