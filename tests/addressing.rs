@@ -1,5 +1,5 @@
 use embedded_hal_mock::i2c::Transaction as I2cTrans;
-use pwm_pca9685::{ProgrammableAddress as ProgAddr, SlaveAddr};
+use pwm_pca9685::{ProgrammableAddress as ProgAddr, Address};
 
 mod common;
 use self::common::{
@@ -69,43 +69,43 @@ prog_addr_test!(allcall, AllCall, ALL_CALL_ADDR);
 #[test]
 fn default_address_matches_alternative_all_false() {
     assert_eq!(
-        SlaveAddr::default().address(),
-        SlaveAddr::Alternative(false, false, false, false, false, false).address()
+        Address::default(),
+        Address::from((false, false, false, false, false, false))
     );
 }
 
 #[test]
 fn can_generate_alternative_addresses() {
     assert_eq!(
-        0b100_0000,
-        SlaveAddr::Alternative(false, false, false, false, false, false).address()
+        Address::from(0b100_0000),
+        Address::from((false, false, false, false, false, false))
     );
     assert_eq!(
-        0b100_0001,
-        SlaveAddr::Alternative(false, false, false, false, false, true).address()
+        Address::from(0b100_0001),
+        Address::from((false, false, false, false, false, true))
     );
     assert_eq!(
-        0b100_0010,
-        SlaveAddr::Alternative(false, false, false, false, true, false).address()
+        Address::from(0b100_0010),
+        Address::from((false, false, false, false, true, false))
     );
     assert_eq!(
-        0b100_0100,
-        SlaveAddr::Alternative(false, false, false, true, false, false).address()
+        Address::from(0b100_0100),
+        Address::from((false, false, false, true, false, false))
     );
     assert_eq!(
-        0b100_1000,
-        SlaveAddr::Alternative(false, false, true, false, false, false).address()
+        Address::from(0b100_1000),
+        Address::from((false, false, true, false, false, false))
     );
     assert_eq!(
-        0b101_0000,
-        SlaveAddr::Alternative(false, true, false, false, false, false).address()
+        Address::from(0b101_0000),
+        Address::from((false, true, false, false, false, false))
     );
     assert_eq!(
-        0b110_0000,
-        SlaveAddr::Alternative(true, false, false, false, false, false).address()
+        Address::from(0b110_0000),
+        Address::from((true, false, false, false, false, false))
     );
     assert_eq!(
-        0b111_1111,
-        SlaveAddr::Alternative(true, true, true, true, true, true).address()
+        Address::from(0b111_1111),
+        Address::from((true, true, true, true, true, true))
     );
 }

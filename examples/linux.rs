@@ -3,12 +3,12 @@ extern crate linux_embedded_hal;
 extern crate pwm_pca9685 as pca9685;
 
 use linux_embedded_hal::I2cdev;
-use pca9685::{Channel, Pca9685, SlaveAddr};
+use pca9685::{Channel, Pca9685, Address};
 
 fn main() {
     let dev = I2cdev::new("/dev/i2c-1").unwrap();
-    let address = SlaveAddr::default();
-    let mut pwm = Pca9685::new(dev, address);
+    let address = Address::default();
+    let mut pwm = Pca9685::new(dev, address).unwrap();
 
     // This corresponds to a frequency of 60 Hz.
     pwm.set_prescale(100).unwrap();

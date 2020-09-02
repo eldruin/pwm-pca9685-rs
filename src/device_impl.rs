@@ -2,7 +2,7 @@ use crate::{
     config::{BitFlagMode1, BitFlagMode2, Config},
     hal::{blocking::delay::DelayUs, blocking::i2c},
     DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685,
-    ProgrammableAddress, Register, SlaveAddr,
+    ProgrammableAddress, Register, Address,
 };
 use nb;
 
@@ -11,12 +11,16 @@ where
     I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
-    pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
-        Pca9685 {
+    pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Result<Self, Error<E>> {
+        let a = address.into();
+       
+        Self::check_address(a.0)?;
+        
+        Ok(Pca9685 {
             i2c,
-            address: address.address(),
+            address: a.0,
             config: Config::default(),
-        }
+        })
     }
 
     /// Destroy driver instance, return I²C bus instance.
@@ -72,17 +76,17 @@ where
     /// least 500us after the receiving the first `WouldBlock` error before
     /// calling again to continue.
     pub fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
-        let mode1 = self.read_register(Register::MODE1)?;
+        let mode1 = self.read_register(Register::MODE1).map_err(nb::Error::Other)?;
         let restart_high = (mode1 & BitFlagMode1::Restart as u8) != 0;
         let sleep_high = (mode1 & BitFlagMode1::Sleep as u8) != 0;
         if restart_high {
             if sleep_high {
-                self.enable()?;
+                self.enable().map_err(nb::Error::Other)?;
                 return Err(nb::Error::WouldBlock);
             } else {
                 let previous = self.config;
                 let config = previous.with_high(BitFlagMode1::Restart);
-                self.write_mode1(config)?;
+                self.write_mode1(config).map_err(nb::Error::Other)?;
                 self.config = previous;
             }
         }
@@ -94,12 +98,14 @@ where
     /// Initially these are not enabled. Once you set this, you can call
     /// `enable_programmable_address()` and then use `set_address()` to configure
     /// the driver to use the new address.
-    pub fn set_programmable_address(
+    pub fn set_programmable_address<A: Into<Address>>(
         &mut self,
         address_type: ProgrammableAddress,
-        address: u8,
+        address: A,
     ) -> Result<(), Error<E>> {
-        self.check_address(address)?;
+        let a = address.into();
+
+        Self::check_address(a.0)?;
         let reg = match address_type {
             ProgrammableAddress::Subaddress1 => Register::SUBADDR1,
             ProgrammableAddress::Subaddress2 => Register::SUBADDR2,
@@ -107,7 +113,7 @@ where
             ProgrammableAddress::AllCall => Register::ALL_CALL_ADDR,
         };
         self.i2c
-            .write(self.address, &[reg, address])
+            .write(self.address, &[reg, a.0])
             .map_err(Error::I2C)
     }
 
@@ -145,13 +151,16 @@ where
     /// This does not have any effect on the hardware and is useful when
     /// switching between programmable addresses and the fixed hardware address
     /// for communication.
-    pub fn set_address(&mut self, address: u8) -> Result<(), Error<E>> {
-        self.check_address(address)?;
-        self.address = address;
+    pub fn set_address<A: Into<Address>>(&mut self, address: A) -> Result<(), Error<E>> {
+        let a = address.into();
+
+        Self::check_address(a.0)?;
+        self.address = a.0;
+
         Ok(())
     }
 
-    fn check_address(&self, address: u8) -> Result<(), Error<E>> {
+    fn check_address(address: u8) -> Result<(), Error<E>> {
         const LED_ALL_CALL: u8 = 0b111_0000;
         // const SW_RESET: u8 = 0b000_0011; this gets absorbed by the high speed mode test
         const HIGH_SPEED_MODE: u8 = 0b000_111;
