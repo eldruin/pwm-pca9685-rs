@@ -2,7 +2,7 @@ use crate::{
     config::{BitFlagMode1, BitFlagMode2, Config},
     hal::{blocking::delay::DelayUs, blocking::i2c},
     DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685,
-    ProgrammableAddress, Register, SlaveAddr,
+    ProgrammableAddress, Register, Address,
 };
 use nb;
 
@@ -11,10 +11,10 @@ where
     I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
-    pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
+    pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Self {
         Pca9685 {
             i2c,
-            address: address.address(),
+            address: address.into().0,
             config: Config::default(),
         }
     }
@@ -94,12 +94,14 @@ where
     /// Initially these are not enabled. Once you set this, you can call
     /// `enable_programmable_address()` and then use `set_address()` to configure
     /// the driver to use the new address.
-    pub fn set_programmable_address(
+    pub fn set_programmable_address<A: Into<Address>>(
         &mut self,
         address_type: ProgrammableAddress,
-        address: u8,
+        address: A,
     ) -> Result<(), Error<E>> {
-        self.check_address(address)?;
+        let a = address.into();
+
+        self.check_address(a.0)?;
         let reg = match address_type {
             ProgrammableAddress::Subaddress1 => Register::SUBADDR1,
             ProgrammableAddress::Subaddress2 => Register::SUBADDR2,
@@ -107,7 +109,7 @@ where
             ProgrammableAddress::AllCall => Register::ALL_CALL_ADDR,
         };
         self.i2c
-            .write(self.address, &[reg, address])
+            .write(self.address, &[reg, a.0])
             .map_err(Error::I2C)
     }
 
@@ -145,9 +147,12 @@ where
     /// This does not have any effect on the hardware and is useful when
     /// switching between programmable addresses and the fixed hardware address
     /// for communication.
-    pub fn set_address(&mut self, address: u8) -> Result<(), Error<E>> {
-        self.check_address(address)?;
-        self.address = address;
+    pub fn set_address<A: Into<Address>>(&mut self, address: A) -> Result<(), Error<E>> {
+        let a = address.into();
+
+        self.check_address(a.0)?;
+        self.address = a.0;
+
         Ok(())
     }
 

@@ -176,45 +176,39 @@ pub enum ProgrammableAddress {
     AllCall,
 }
 
-/// Possible slave addresses
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum SlaveAddr {
-    /// Default slave address
-    Default,
-    /// Alternative slave address providing bit values for A5, A4, A3, A2, A1 and A0
-    Alternative(bool, bool, bool, bool, bool, bool),
-    /// Integer alternative slave address
-    Integer(u8),
-}
+/// I2C device address
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Address(pub(crate) u8);
 
-impl Default for SlaveAddr {
-    /// Default slave address
+/// Default device address
+impl Default for Address {
     fn default() -> Self {
-        SlaveAddr::Default
+        Address(DEVICE_BASE_ADDRESS)
     }
 }
 
-impl SlaveAddr {
-    /// Get the I2C slave address
-    ///
-    /// This is useful when switching between programmable addresses and the
-    /// fixed hardware slave address.
-    pub fn address(self) -> u8 {
-        match self {
-            SlaveAddr::Default => DEVICE_BASE_ADDRESS,
-            SlaveAddr::Integer(v) => v,
-            SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0) => {
-                DEVICE_BASE_ADDRESS
-                    | ((a5 as u8) << 5)
-                    | ((a4 as u8) << 4)
-                    | ((a3 as u8) << 3)
-                    | ((a2 as u8) << 2)
-                    | ((a1 as u8) << 1)
-                    | a0 as u8
-            }
-        }
+/// Support custom (integer) addresses
+impl From<u8> for Address {
+    fn from(a: u8) -> Self {
+        Address(a)
     }
 }
+
+/// Compute device address from address bits
+impl From<(bool, bool, bool, bool, bool, bool)> for Address {
+    fn from(a: (bool, bool, bool, bool, bool, bool)) -> Self {
+        Address(
+            DEVICE_BASE_ADDRESS
+                | ((a.0 as u8) << 5)
+                | ((a.1 as u8) << 4)
+                | ((a.2 as u8) << 3)
+                | ((a.3 as u8) << 2)
+                | ((a.4 as u8) << 1)
+                | a.5 as u8
+        )
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -236,7 +230,7 @@ mod tests {
 
     #[test]
     fn can_get_default_address() {
-        let addr = SlaveAddr::default();
-        assert_eq!(DEVICE_BASE_ADDRESS, addr.address());
+        let addr = Address::default();
+        assert_eq!(DEVICE_BASE_ADDRESS, addr.0);
     }
 }

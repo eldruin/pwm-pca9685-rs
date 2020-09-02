@@ -76,11 +76,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Pca9685, SlaveAddr };
+//! use pca9685::{ Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let address = SlaveAddr::default();
+//! let address = Address::default();
 //! let pwm = Pca9685::new(dev, address);
 //! // do something...
 //!
@@ -94,12 +94,12 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Pca9685, SlaveAddr };
+//! use pca9685::{ Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let (a5, a4, a3, a2, a1, a0) = (false, true, false, true, true, false);
-//! let address = SlaveAddr::Alternative(a5, a4, a3, a2, a1, a0);
+//! let address = (a5, a4, a3, a2, a1, a0);
 //! let pwm = Pca9685::new(dev, address);
 //! # }
 //! ```
@@ -115,11 +115,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//! use pca9685::{ Channel, Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let address = SlaveAddr::default();
+//! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address);
 //! pwm.set_prescale(100).unwrap();
 //!
@@ -144,11 +144,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//! use pca9685::{ Channel, Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let address = SlaveAddr::default();
+//! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address);
 //! pwm.set_prescale(100).unwrap();
 //!
@@ -173,11 +173,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//! use pca9685::{ Channel, Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let address = SlaveAddr::default();
+//! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address);
 //!
 //! // Turn channel 0 full on at 1024
@@ -203,11 +203,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, SlaveAddr };
+//! use pca9685::{ Channel, Pca9685, Address };
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let address = SlaveAddr::default();
+//! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address);
 //!
 //! let mut on = [0; 16];
@@ -227,11 +227,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{Channel, Pca9685, SlaveAddr, ProgrammableAddress};
+//! use pca9685::{Channel, Pca9685, Address, ProgrammableAddress};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let hardware_address = SlaveAddr::default();
+//! let hardware_address = Address::default();
 //! let mut pwm = Pca9685::new(dev, hardware_address);
 //!
 //! let subaddr1 = 0x71;
@@ -243,7 +243,7 @@
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
 //!
 //! // The device will also respond to the hardware address:
-//! pwm.set_address(hardware_address.address()).unwrap();
+//! pwm.set_address(hardware_address).unwrap();
 //! pwm.set_channel_on_off(Channel::C0, 2047, 4095).unwrap();
 //!
 //! // when done you can also disable responding to the additional address:
@@ -256,11 +256,11 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{Channel, Pca9685, SlaveAddr};
+//! use pca9685::{Channel, Pca9685, Address};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-//! let mut pwm = Pca9685::new(dev, SlaveAddr::default());
+//! let mut pwm = Pca9685::new(dev, Address::default());
 //!
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
 //! // Prepare for restart and put the device to sleep
@@ -285,5 +285,5 @@ mod device_impl;
 mod types;
 pub use crate::types::{
     Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
-    Pca9685, ProgrammableAddress, SlaveAddr,
+    Pca9685, ProgrammableAddress, Address,
 };

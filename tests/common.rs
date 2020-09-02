@@ -1,5 +1,5 @@
 use embedded_hal_mock::i2c::{Mock as I2cMock, Transaction as I2cTrans};
-use pwm_pca9685::{Error, Pca9685, SlaveAddr};
+use pwm_pca9685::{Error, Pca9685, Address};
 
 #[allow(unused)]
 pub const DEV_ADDR: u8 = 0b100_0000;
@@ -75,7 +75,7 @@ impl BitFlags {
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
-    Pca9685::new(I2cMock::new(transactions), SlaveAddr::default())
+    Pca9685::new(I2cMock::new(transactions), Address::default())
 }
 
 pub fn destroy(pwm: Pca9685<I2cMock>) {
