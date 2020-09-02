@@ -75,7 +75,7 @@ impl BitFlags {
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Pca9685<I2cMock> {
-    Pca9685::new(I2cMock::new(transactions), Address::default())
+    Pca9685::new(I2cMock::new(transactions), Address::default()).unwrap()
 }
 
 pub fn destroy(pwm: Pca9685<I2cMock>) {

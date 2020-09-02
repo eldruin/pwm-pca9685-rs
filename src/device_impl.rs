@@ -11,12 +11,16 @@ where
     I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
 {
     /// Create a new instance of the device.
-    pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Self {
-        Pca9685 {
+    pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Result<Self, Error<E>> {
+        let a = address.into();
+       
+        Self::check_address(a.0)?;
+        
+        Ok(Pca9685 {
             i2c,
-            address: address.into().0,
+            address: a.0,
             config: Config::default(),
-        }
+        })
     }
 
     /// Destroy driver instance, return I²C bus instance.
@@ -101,7 +105,7 @@ where
     ) -> Result<(), Error<E>> {
         let a = address.into();
 
-        self.check_address(a.0)?;
+        Self::check_address(a.0)?;
         let reg = match address_type {
             ProgrammableAddress::Subaddress1 => Register::SUBADDR1,
             ProgrammableAddress::Subaddress2 => Register::SUBADDR2,
@@ -150,13 +154,13 @@ where
     pub fn set_address<A: Into<Address>>(&mut self, address: A) -> Result<(), Error<E>> {
         let a = address.into();
 
-        self.check_address(a.0)?;
+        Self::check_address(a.0)?;
         self.address = a.0;
 
         Ok(())
     }
 
-    fn check_address(&self, address: u8) -> Result<(), Error<E>> {
+    fn check_address(address: u8) -> Result<(), Error<E>> {
         const LED_ALL_CALL: u8 = 0b111_0000;
         // const SW_RESET: u8 = 0b000_0011; this gets absorbed by the high speed mode test
         const HIGH_SPEED_MODE: u8 = 0b000_111;
