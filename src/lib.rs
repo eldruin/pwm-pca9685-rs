@@ -287,3 +287,4 @@ pub use crate::types::{
     Address, Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState,
     OutputStateChange, Pca9685, ProgrammableAddress,
 };
+pub use nb;
