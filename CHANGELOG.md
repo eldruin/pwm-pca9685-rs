@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-...
+### Changed
+
+- [breaking-change] `SlaveAddr` type has changed to `Address`, which now
+  features conversion from `u8` and a list of booleans for the `A0`..`A5`
+  pins as before.
 
 ## [0.2.0] - 2019-12-10
 
