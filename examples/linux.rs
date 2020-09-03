@@ -1,9 +1,5 @@
-extern crate embedded_hal;
-extern crate linux_embedded_hal;
-extern crate pwm_pca9685 as pca9685;
-
 use linux_embedded_hal::I2cdev;
-use pca9685::{Address, Channel, Pca9685};
+use pwm_pca9685::{Address, Channel, Pca9685};
 
 fn main() {
     let dev = I2cdev::new("/dev/i2c-1").unwrap();

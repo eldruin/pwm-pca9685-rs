@@ -74,34 +74,28 @@
 //! ### Create a driver instance
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let pwm = Pca9685::new(dev, address).unwrap();
 //! // do something...
 //!
 //! // get the I2C device back
 //! let dev = pwm.destroy();
-//! # }
 //! ```
 //!
 //! ### Create a driver instance for the PCA9685 with an alternative address
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let (a5, a4, a3, a2, a1, a0) = (false, true, false, true, true, false);
 //! let address = (a5, a4, a3, a2, a1, a0);
 //! let pwm = Pca9685::new(dev, address).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the PWM frequency and channel duty cycles
@@ -113,12 +107,10 @@
 //!   to channel 0.
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, Channel, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //! pwm.set_prescale(100).unwrap();
@@ -130,7 +122,6 @@
 //! // 0.000814 (seconds) * 60 (Hz) * 4096 (resolution) = 200
 //! // 4096 * 0.75 + 200 = 3272
 //! pwm.set_channel_on_off(Channel::C1, 200, 3272).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the PWM frequency and channel duty cycles separately
@@ -142,12 +133,10 @@
 //!   to channel 0.
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, Channel, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //! pwm.set_prescale(100).unwrap();
@@ -165,18 +154,15 @@
 //! // Turn off channel 1 at 3271, which is 75% in the range `[0..4095]`
 //! // plus 200 which is when the channel turns on.
 //! pwm.set_channel_off(Channel::C1, 3271).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set a channel completely on and off (beware of precedences).
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, Channel, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //!
@@ -195,25 +181,21 @@
 //! // Deactivate full on and set a duty cycle of 50% for channel 0.
 //! // (on from 0 to 2047, then off)
 //! pwm.set_channel_on(Channel::C0, 0).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set a 50% duty cycle for all channels at once
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{ Channel, Pca9685, Address };
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{ Channel, Pca9685, Address };
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //!
 //! let mut on = [0; 16];
 //! let mut off = [2047; 16];
 //! pwm.set_all_on_off(&on, &off);
-//! # }
 //! ```
 //!
 //! ### Use a programmable address
@@ -225,12 +207,10 @@
 //! to communicate with the device.
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{Channel, Pca9685, Address, ProgrammableAddress};
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Channel, Pca9685, Address, ProgrammableAddress};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let hardware_address = Address::default();
 //! let mut pwm = Pca9685::new(dev, hardware_address).unwrap();
 //!
@@ -248,18 +228,15 @@
 //!
 //! // when done you can also disable responding to the additional address:
 //! pwm.disable_programmable_address(ProgrammableAddress::Subaddress1).unwrap();
-//! # }
 //! ```
 //!
 //! ### Put the device to sleep then restart previously active PWM channels
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate pwm_pca9685 as pca9685;
-//! use pca9685::{Channel, Pca9685, Address};
+//! use linux_embedded_hal::{Delay, I2cdev};
+//! use pwm_pca9685::{Address, Channel, Pca9685};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut pwm = Pca9685::new(dev, Address::default()).unwrap();
 //!
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
@@ -267,9 +244,8 @@
 //! pwm.enable_restart_and_disable().unwrap();
 //! // ...
 //! // re-enable device and reactivate channel 0
-//! let mut delay = hal::Delay{};
+//! let mut delay = Delay{};
 //! pwm.restart(&mut delay).unwrap();
-//! # }
 //! ```
 
 #![deny(missing_docs, unsafe_code)]

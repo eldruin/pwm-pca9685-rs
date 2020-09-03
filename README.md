@@ -65,14 +65,14 @@ then instantiate the appropriate device.
 In this example we set a PWM frequency of 60 Hz and a duty cycle of 50%
 on channel 0.
 ```rust
-extern crate linux_embedded_hal as hal;
-extern crate pwm_pca9685 as pca9685;
-use pca9685::{ Channel, Pca9685, Address };
+use linux_embedded_hal::I2cdev;
+use pwm_pca9685::{Address, Channel, Pca9685};
 
 fn main() {
-    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+    let dev = I2cdev::new("/dev/i2c-1").unwrap();
     let address = Address::default();
-    let mut pwm = Pca9685::new(dev, address);
+    let mut pwm = Pca9685::new(dev, address).unwrap();
+
     // This corresponds to a frequency of 60 Hz.
     pwm.set_prescale(100).unwrap();
 
@@ -82,6 +82,9 @@ fn main() {
     // Turn off channel 0 at 2047, which is 50% in
     // the range `[0..4095]`.
     pwm.set_channel_off(Channel::C0, 2047).unwrap();
+
+    let _dev = pwm.destroy(); // Get the I2C device back
+}
 ```
 
 ## Support
