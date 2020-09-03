@@ -37,7 +37,7 @@
 //! [`enable_restart_and_disable()`]: struct.Pca9685.html#method.enable_restart_and_disable
 //!
 //! [Introductory blog post](https://blog.eldruin.com/pca9685-pwm-led-servo-controller-driver-in-rust/)
-//! 
+//!
 //! ## The device
 //!
 //! This device is an I2C-bus controlled 16-channel, 12-bit PWM controller.
@@ -284,6 +284,6 @@ mod channels;
 mod device_impl;
 mod types;
 pub use crate::types::{
-    Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
-    Pca9685, ProgrammableAddress, Address,
+    Address, Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState,
+    OutputStateChange, Pca9685, ProgrammableAddress,
 };

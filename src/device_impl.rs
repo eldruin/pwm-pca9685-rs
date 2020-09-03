@@ -1,8 +1,8 @@
 use crate::{
     config::{BitFlagMode1, BitFlagMode2, Config},
     hal::{blocking::delay::DelayUs, blocking::i2c},
-    DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange, Pca9685,
-    ProgrammableAddress, Register, Address,
+    Address, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
+    Pca9685, ProgrammableAddress, Register,
 };
 use nb;
 
@@ -13,9 +13,9 @@ where
     /// Create a new instance of the device.
     pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Result<Self, Error<E>> {
         let a = address.into();
-       
+
         Self::check_address(a.0)?;
-        
+
         Ok(Pca9685 {
             i2c,
             address: a.0,
@@ -76,7 +76,9 @@ where
     /// least 500us after the receiving the first `WouldBlock` error before
     /// calling again to continue.
     pub fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
-        let mode1 = self.read_register(Register::MODE1).map_err(nb::Error::Other)?;
+        let mode1 = self
+            .read_register(Register::MODE1)
+            .map_err(nb::Error::Other)?;
         let restart_high = (mode1 & BitFlagMode1::Restart as u8) != 0;
         let sleep_high = (mode1 & BitFlagMode1::Sleep as u8) != 0;
         if restart_high {

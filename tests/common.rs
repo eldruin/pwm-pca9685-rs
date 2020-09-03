@@ -1,5 +1,5 @@
 use embedded_hal_mock::i2c::{Mock as I2cMock, Transaction as I2cTrans};
-use pwm_pca9685::{Error, Pca9685, Address};
+use pwm_pca9685::{Address, Error, Pca9685};
 
 #[allow(unused)]
 pub const DEV_ADDR: u8 = 0b100_0000;

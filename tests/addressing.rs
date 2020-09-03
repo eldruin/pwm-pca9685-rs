@@ -1,5 +1,5 @@
 use embedded_hal_mock::i2c::Transaction as I2cTrans;
-use pwm_pca9685::{ProgrammableAddress as ProgAddr, Address};
+use pwm_pca9685::{Address, ProgrammableAddress as ProgAddr};
 
 mod common;
 use self::common::{

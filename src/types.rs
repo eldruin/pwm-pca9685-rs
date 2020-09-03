@@ -204,11 +204,10 @@ impl From<(bool, bool, bool, bool, bool, bool)> for Address {
                 | ((a.2 as u8) << 3)
                 | ((a.3 as u8) << 2)
                 | ((a.4 as u8) << 1)
-                | a.5 as u8
+                | a.5 as u8,
         )
     }
 }
-
 
 #[cfg(test)]
 mod tests {
