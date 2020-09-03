@@ -4,7 +4,6 @@ use crate::{
     Address, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
     Pca9685, ProgrammableAddress, Register,
 };
-use nb;
 
 impl<I2C, E> Pca9685<I2C>
 where
