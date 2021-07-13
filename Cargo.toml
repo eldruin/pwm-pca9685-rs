@@ -21,7 +21,7 @@ include = [
 edition = "2018"
 
 [dependencies]
-embedded-hal = "0.2"
+embedded-hal = "0.2.5"
 nb = "1"
 
 [dev-dependencies]
