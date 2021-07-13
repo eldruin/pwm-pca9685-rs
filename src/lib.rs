@@ -98,6 +98,7 @@
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //! pwm.set_prescale(100).unwrap();
+//! pwm.enable().unwrap();
 //!
 //! // Turn on channel 0 at 0 and off at 2047, which is 50% in the range `[0..4095]`.
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
@@ -124,6 +125,7 @@
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
 //! pwm.set_prescale(100).unwrap();
+//! pwm.enable().unwrap();
 //!
 //! // Turn on channel 0 at 0
 //! pwm.set_channel_on(Channel::C0, 0).unwrap();
@@ -149,6 +151,7 @@
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
+//! pwm.enable().unwrap();
 //!
 //! // Turn channel 0 full on at 1024
 //! pwm.set_channel_full_on(Channel::C0, 1024).unwrap();
@@ -176,6 +179,7 @@
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = Address::default();
 //! let mut pwm = Pca9685::new(dev, address).unwrap();
+//! pwm.enable().unwrap();
 //!
 //! let mut on = [0; 16];
 //! let mut off = [2047; 16];
@@ -204,6 +208,7 @@
 //!
 //! // Now communicate using the new address:
 //! pwm.set_address(subaddr1).unwrap();
+//! pwm.enable().unwrap();
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
 //!
 //! // The device will also respond to the hardware address:
@@ -222,6 +227,7 @@
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut pwm = Pca9685::new(dev, Address::default()).unwrap();
+//! pwm.enable().unwrap();
 //!
 //! pwm.set_channel_on_off(Channel::C0, 0, 2047).unwrap();
 //! // Prepare for restart and put the device to sleep

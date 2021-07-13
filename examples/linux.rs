@@ -9,6 +9,9 @@ fn main() {
     // This corresponds to a frequency of 60 Hz.
     pwm.set_prescale(100).unwrap();
 
+    // It is necessary to enable the device.
+    pwm.enable().unwrap();
+
     // Turn on channel 0 at 0.
     pwm.set_channel_on(Channel::C0, 0).unwrap();
 
