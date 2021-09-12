@@ -1,5 +1,7 @@
 use crate::config::Config;
 use core::convert::TryFrom;
+use core::fmt::{Display, Formatter};
+
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 /// PCA9685 PWM/Servo/LED controller.
@@ -20,6 +22,16 @@ pub enum Error<E> {
     I2C(E),
     /// Invalid input data provided
     InvalidInputData,
+}
+
+// Implement Display for Error<E> if E also implements Display
+impl<E: Display> Display for Error<E> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Error::I2C(e) => write!(f, "I²C bus error: {}", e),
+            Error::InvalidInputData => write!(f, "Invalid input data provided")
+        }
+    }
 }
 
 /// Output channel selection
