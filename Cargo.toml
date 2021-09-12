@@ -30,3 +30,6 @@ embedded-hal-mock = "0.7"
 
 [profile.release]
 lto = true
+
+[features]
+std = []

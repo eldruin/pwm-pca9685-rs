@@ -2,6 +2,9 @@ use crate::config::Config;
 use core::convert::TryFrom;
 use core::fmt::{Display, Formatter};
 
+#[cfg(feature = "std")]
+extern crate std;
+
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 /// PCA9685 PWM/Servo/LED controller.
@@ -33,6 +36,9 @@ impl<E: Display> Display for Error<E> {
         }
     }
 }
+
+#[cfg(feature = "std")]
+impl<E: std::error::Error> std::error::Error for Error<E> {}
 
 /// Output channel selection
 #[derive(Debug, Clone, Copy, PartialEq)]
