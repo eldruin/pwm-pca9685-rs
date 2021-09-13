@@ -111,6 +111,7 @@ jobs:
       matrix:
         rust: [stable, beta]
         TARGET: [x86_64-unknown-linux-gnu, x86_64-unknown-linux-musl]
+        feature: ["", " --features std"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -124,7 +125,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --target=${{ matrix.TARGET }}
+          args: --target=${{ matrix.TARGET }}${{ matrix.feature }}
 
   coverage:
     name: Coverage
