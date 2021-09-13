@@ -251,3 +251,34 @@ mod tests {
         assert_eq!(DEVICE_BASE_ADDRESS, addr.0);
     }
 }
+
+#[cfg(all(test, feature = "std"))]
+mod std_tests {
+    use super::*;
+    use std::format;
+
+    struct TestError;
+    impl Display for TestError {
+        fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+            write!(f, "test")
+        }
+    }
+
+    #[test]
+    fn test_display_implementation_invalid_input_data() {
+        let expected = "Invalid input data provided";
+        let error = Error::<TestError>::InvalidInputData;
+        let actual = format!("{}", error);
+
+        assert_eq!(expected, actual)
+    }
+
+    #[test]
+    fn test_display_implementation_i2c_error() {
+        let expected = "I²C bus error: test";
+        let error = Error::<TestError>::I2C(TestError);
+        let actual = format!("{}", error);
+
+        assert_eq!(expected, actual)
+    }
+}
