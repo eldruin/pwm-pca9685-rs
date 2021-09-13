@@ -32,7 +32,7 @@ impl<E: Display> Display for Error<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             Error::I2C(e) => write!(f, "I²C bus error: {}", e),
-            Error::InvalidInputData => write!(f, "Invalid input data provided")
+            Error::InvalidInputData => write!(f, "Invalid input data provided"),
         }
     }
 }
