@@ -8,7 +8,7 @@ extern crate std;
 const DEVICE_BASE_ADDRESS: u8 = 0b100_0000;
 
 /// PCA9685 PWM/Servo/LED controller.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Pca9685<I2C> {
     /// The concrete I²C device implementation.
     pub(crate) i2c: I2C,
