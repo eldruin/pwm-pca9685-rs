@@ -19,7 +19,7 @@ pub struct Pca9685<I2C> {
 }
 
 /// All possible errors in this crate
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Error<E> {
     /// I²C bus error
     I2C(E),
