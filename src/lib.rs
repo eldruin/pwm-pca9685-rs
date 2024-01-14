@@ -257,4 +257,9 @@ pub use crate::types::{
 pub use nb;
 
 /// Implementation of sync functionality
+#[cfg(not(feature = "async"))]
 mod blocking;
+
+/// Implementation of async functionality
+#[cfg(feature = "async")]
+mod non_blocking;

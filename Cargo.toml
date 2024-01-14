@@ -23,6 +23,7 @@ edition = "2018"
 [dependencies]
 embedded-hal = "0.2.5"
 nb = "1"
+embedded-hal-async = { version = "1", optional = true }
 
 [dev-dependencies]
 linux-embedded-hal = "0.3"
@@ -33,3 +34,4 @@ lto = true
 
 [features]
 std = []
+async = ["embedded-hal-async"]
