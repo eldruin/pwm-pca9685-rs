@@ -237,12 +237,54 @@
 //! let mut delay = Delay{};
 //! pwm.restart(&mut delay).unwrap();
 //! ```
+//!
+//! ### Using async driver
+//!
+//! Enable the `async` feature in your `Cargo.toml`:
+//! ```toml
+//! pwm-pca9685 = { version = "0.3.1", features = ["async"] }
+//! ```
+//! - Set a PWM frequency of 60 Hz (corresponds to a value of 100 for the
+//!   prescale).
+//! - Set a duty cycle of 50% for channel 0.
+//! - Set a duty cycle of 75% for channel 1 delayed 814 µs with respect
+//!   to channel 0.
+//!
+//! ```!compile_fail
+//! #![no_std]
+//! #![no_main]
+//!
+//! use embassy_executor::Spawner;
+//! use embassy_rp::{bind_interrupts, i2c};
+//! use embassy_rp::peripherals::I2C0;
+//! use pwm_pca9685::{Address, Channel, Pca9685};
+//!
+//! bind_interrupts!(struct Irqs {
+//!     I2C0_IRQ => i2c::InterruptHandler<I2C0>;
+//! });
+//!
+//! #[embassy_executor::main]
+//! async fn main(_spawner: Spawner) {
+//!     let p = embassy_rp::init(Default::default());
+//!     let dev = i2c::I2c::new_async(p.I2C0, p.PIN_1, p.PIN_0, Irqs, i2c::Config::default());
+//!     let address = Address::default();
+//!     let mut pwm = Pca9685::new(dev, address).await.unwrap();
+//!     pwm.set_prescale(100).await.unwrap();
+//!     pwm.enable().await.unwrap();
+//!
+//!     // Turn on channel 0 at 0 and off at 2047, which is 50% in the range `[0..4095]`.
+//!     pwm.set_channel_on_off(Channel::C0, 0, 2047).await.unwrap();
+//!
+//!     // Turn on channel 1 at 200, then off at 3271. These values comes from:
+//!     // 0.000814 (seconds) * 60 (Hz) * 4096 (resolution) = 200
+//!     // 4096 * 0.75 + 200 = 3272
+//!     pwm.set_channel_on_off(Channel::C1, 200, 3272).await.unwrap();
+//! }
+//! ```
 
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
 #![doc(html_root_url = "https://docs.rs/pwm-pca9685/0.3.1")]
-
-use embedded_hal as hal;
 
 mod config;
 mod register_access;

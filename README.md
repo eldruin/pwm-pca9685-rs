@@ -2,14 +2,16 @@
 
 [![crates.io](https://img.shields.io/crates/v/pwm-pca9685.svg)](https://crates.io/crates/pwm-pca9685)
 [![Docs](https://docs.rs/pwm-pca9685/badge.svg)](https://docs.rs/pwm-pca9685)
-![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.62+-blue.svg)
+![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.75+-blue.svg)
 [![Build Status](https://github.com/eldruin/pwm-pca9685-rs/workflows/Build/badge.svg)](https://github.com/eldruin/pwm-pca9685-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/pwm-pca9685-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/pwm-pca9685-rs?branch=master)
 
 This is a platform agnostic Rust driver for the PCA9685 PWM/Servo/LED
 controller, based on the [`embedded-hal`] traits.
+This driver also supports the [`embedded-hal-async`] traits if the `async` feature is enabled.
 
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
+[`embedded-hal-async`]: https://github.com/rust-embedded/embedded-hal-async
 
 This driver allows you to:
 - Enable/disable the device. See: `enable()`.
@@ -86,6 +88,53 @@ fn main() {
     // Turn off channel 0 at 2047, which is 50% in
     // the range `[0..4095]`.
     pwm.set_channel_off(Channel::C0, 2047).unwrap();
+
+    let _dev = pwm.destroy(); // Get the I2C device back
+}
+```
+
+The same settings, but async with the [Embassy](https://embassy.dev/) framework on an RP2040:
+
+```toml
+# Cargo.toml
+pwm-pca9685 = { version = "0.3.1", features = ["async"] }
+```
+
+```rust
+#![no_std]
+#![no_main]
+
+use embassy_executor::Spawner;
+use embassy_rp::{bind_interrupts, i2c};
+use embassy_rp::peripherals::I2C0;
+use embassy_time::Timer;
+use panic_halt as _;
+use pwm_pca9685::{Address, Channel, Pca9685};
+
+bind_interrupts!(struct Irqs {
+    I2C0_IRQ => i2c::InterruptHandler<I2C0>;
+});
+
+#[embassy_executor::main]
+async fn main(_spawner: Spawner) {
+    let p = embassy_rp::init(Default::default());
+    let i2c = i2c::I2c::new_async(p.I2C0, p.PIN_1, p.PIN_0, Irqs, i2c::Config::default());
+
+    let address = Address::default();
+    let mut pwm = Pca9685::new(dev, address).await.unwrap();
+
+    // This corresponds to a frequency of 60 Hz.
+    pwm.set_prescale(100).await.unwrap();
+
+    // It is necessary to enable the device.
+    pwm.enable().await.unwrap();
+
+    // Turn on channel 0 at 0.
+    pwm.set_channel_on(Channel::C0, 0).await.unwrap();
+
+    // Turn off channel 0 at 2047, which is 50% in
+    // the range `[0..4095]`.
+    pwm.set_channel_off(Channel::C0, 2047).await.unwrap();
 
     let _dev = pwm.destroy(); // Get the I2C device back
 }

@@ -1,13 +1,26 @@
 use crate::{
     config::{BitFlagMode1, BitFlagMode2, Config},
-    hal::{delay::DelayNs, i2c},
     Address, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
     Pca9685, ProgrammableAddress, Register,
 };
 
+#[cfg(not(feature = "async"))]
+use embedded_hal::{delay::DelayNs, i2c::I2c};
+#[cfg(feature = "async")]
+use embedded_hal_async::{delay::DelayNs as AsyncDelayNs, i2c::I2c as AsyncI2c};
+
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Pca9685",
+        idents(AsyncI2c(sync = "I2c")),
+        idents(AsyncDelayNs(sync = "DelayNs"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Result<Self, Error<E>> {
@@ -28,22 +41,24 @@ where
     }
 
     /// Enable the controller.
-    pub fn enable(&mut self) -> Result<(), Error<E>> {
+    pub async fn enable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
-        self.write_mode1(config.with_low(BitFlagMode1::Sleep))
+        self.write_mode1(config.with_low(BitFlagMode1::Sleep)).await
     }
 
     /// Disable the controller (sleep).
-    pub fn disable(&mut self) -> Result<(), Error<E>> {
+    pub async fn disable(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::Sleep))
+            .await
     }
 
     /// Put the controller to sleep while keeping the PWM register
     /// contents in preparation for a future restart.
-    pub fn enable_restart_and_disable(&mut self) -> Result<(), Error<E>> {
+    pub async fn enable_restart_and_disable(&mut self) -> Result<(), Error<E>> {
         let config = self.config.with_high(BitFlagMode1::Sleep);
-        self.write_mode1(config.with_high(BitFlagMode1::Restart))?;
+        self.write_mode1(config.with_high(BitFlagMode1::Restart))
+            .await?;
         // Do not store restart bit high as writing this bit high again
         // would internally clear it to 0. Writing 0 has no effect.
         self.config = config;
@@ -55,14 +70,14 @@ where
     ///
     /// This includes a delay of 500us in order for the oscillator to stabilize.
     /// If you cannot afford a 500us delay you can use `restart_nonblocking()`.
-    pub fn restart(&mut self, delay: &mut impl DelayNs) -> Result<(), Error<E>> {
-        let mode1 = self.read_register(Register::MODE1)?;
+    pub async fn restart(&mut self, delay: &mut impl AsyncDelayNs) -> Result<(), Error<E>> {
+        let mode1 = self.read_register(Register::MODE1).await?;
         if (mode1 & BitFlagMode1::Restart as u8) != 0 {
-            self.enable()?;
-            delay.delay_us(500);
+            self.enable().await?;
+            delay.delay_us(500).await;
             let previous = self.config;
             let config = previous.with_high(BitFlagMode1::Restart);
-            self.write_mode1(config)?;
+            self.write_mode1(config).await?;
             self.config = previous;
         }
         Ok(())
@@ -74,20 +89,21 @@ where
     /// This is a nonblocking version where you are responsible for waiting at
     /// least 500us after the receiving the first `WouldBlock` error before
     /// calling again to continue.
-    pub fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
+    pub async fn restart_nonblocking(&mut self) -> nb::Result<(), Error<E>> {
         let mode1 = self
             .read_register(Register::MODE1)
+            .await
             .map_err(nb::Error::Other)?;
         let restart_high = (mode1 & BitFlagMode1::Restart as u8) != 0;
         let sleep_high = (mode1 & BitFlagMode1::Sleep as u8) != 0;
         if restart_high {
             if sleep_high {
-                self.enable().map_err(nb::Error::Other)?;
+                self.enable().await.map_err(nb::Error::Other)?;
                 return Err(nb::Error::WouldBlock);
             } else {
                 let previous = self.config;
                 let config = previous.with_high(BitFlagMode1::Restart);
-                self.write_mode1(config).map_err(nb::Error::Other)?;
+                self.write_mode1(config).await.map_err(nb::Error::Other)?;
                 self.config = previous;
             }
         }
@@ -99,7 +115,7 @@ where
     /// Initially these are not enabled. Once you set this, you can call
     /// `enable_programmable_address()` and then use `set_address()` to configure
     /// the driver to use the new address.
-    pub fn set_programmable_address<A: Into<Address>>(
+    pub async fn set_programmable_address<A: Into<Address>>(
         &mut self,
         address_type: ProgrammableAddress,
         address: A,
@@ -115,6 +131,7 @@ where
         };
         self.i2c
             .write(self.address, &[reg, a.0])
+            .await
             .map_err(Error::I2C)
     }
 
@@ -128,23 +145,23 @@ where
     }
 
     /// Enable responding to programmable address
-    pub fn enable_programmable_address(
+    pub async fn enable_programmable_address(
         &mut self,
         address_type: ProgrammableAddress,
     ) -> Result<(), Error<E>> {
         let flag = Self::get_subaddr_bitflag(address_type);
         let config = self.config;
-        self.write_mode1(config.with_high(flag))
+        self.write_mode1(config.with_high(flag)).await
     }
 
     /// Disable responding to programmable address
-    pub fn disable_programmable_address(
+    pub async fn disable_programmable_address(
         &mut self,
         address_type: ProgrammableAddress,
     ) -> Result<(), Error<E>> {
         let flag = Self::get_subaddr_bitflag(address_type);
         let config = self.config;
-        self.write_mode1(config.with_low(flag))
+        self.write_mode1(config.with_low(flag)).await
     }
 
     /// Sets the address used by the driver for communication.
@@ -176,7 +193,7 @@ where
     ///
     /// Note that update on ACK requires all 4 PWM channel registers to be loaded before
     /// outputs are changed on the last ACK.
-    pub fn set_output_change_behavior(
+    pub async fn set_output_change_behavior(
         &mut self,
         change_behavior: OutputStateChange,
     ) -> Result<(), Error<E>> {
@@ -184,20 +201,20 @@ where
             OutputStateChange::OnStop => self.config.with_low(BitFlagMode2::Och),
             OutputStateChange::OnAck => self.config.with_high(BitFlagMode2::Och),
         };
-        self.write_mode2(config)
+        self.write_mode2(config).await
     }
 
     /// Set the output driver configuration.
-    pub fn set_output_driver(&mut self, driver: OutputDriver) -> Result<(), Error<E>> {
+    pub async fn set_output_driver(&mut self, driver: OutputDriver) -> Result<(), Error<E>> {
         let config = match driver {
             OutputDriver::TotemPole => self.config.with_high(BitFlagMode2::OutDrv),
             OutputDriver::OpenDrain => self.config.with_low(BitFlagMode2::OutDrv),
         };
-        self.write_mode2(config)
+        self.write_mode2(config).await
     }
 
     /// Set the output value when outputs are disabled (`OE` = 1).
-    pub fn set_disabled_output_value(
+    pub async fn set_disabled_output_value(
         &mut self,
         value: DisabledOutputValue,
     ) -> Result<(), Error<E>> {
@@ -215,17 +232,25 @@ where
                 .with_low(BitFlagMode2::OutNe0)
                 .with_high(BitFlagMode2::OutNe1),
         };
-        self.write_mode2(config)
+        self.write_mode2(config).await
     }
 
     /// Set the output logic state
     ///
     /// This allows for inversion of the output logic. Applicable when `OE = 0`.
-    pub fn set_output_logic_state(&mut self, state: OutputLogicState) -> Result<(), Error<E>> {
+    pub async fn set_output_logic_state(
+        &mut self,
+        state: OutputLogicState,
+    ) -> Result<(), Error<E>> {
         let config = self.config;
         match state {
-            OutputLogicState::Direct => self.write_mode2(config.with_low(BitFlagMode2::Invrt)),
-            OutputLogicState::Inverted => self.write_mode2(config.with_high(BitFlagMode2::Invrt)),
+            OutputLogicState::Direct => {
+                self.write_mode2(config.with_low(BitFlagMode2::Invrt)).await
+            }
+            OutputLogicState::Inverted => {
+                self.write_mode2(config.with_high(BitFlagMode2::Invrt))
+                    .await
+            }
         }
     }
 
@@ -233,11 +258,13 @@ where
     ///
     /// This setting is _sticky_. It can only be cleared by a power cycle or
     /// a software reset.
-    pub fn use_external_clock(&mut self) -> Result<(), Error<E>> {
+    pub async fn use_external_clock(&mut self) -> Result<(), Error<E>> {
         let config = self.config;
-        self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
+        self.write_mode1(config.with_high(BitFlagMode1::Sleep))
+            .await?;
         let config = self.config;
         self.write_mode1(config.with_high(BitFlagMode1::ExtClk))
+            .await
     }
 
     /// Set the prescale value.
@@ -255,7 +282,7 @@ where
     ///
     /// Internally this function stops the oscillator and restarts it after
     /// setting the prescale value if it was running.
-    pub fn set_prescale(&mut self, prescale: u8) -> Result<(), Error<E>> {
+    pub async fn set_prescale(&mut self, prescale: u8) -> Result<(), Error<E>> {
         if prescale < 3 {
             return Err(Error::InvalidInputData);
         }
@@ -263,16 +290,18 @@ where
         let was_oscillator_running = config.is_low(BitFlagMode1::Sleep);
         if was_oscillator_running {
             // stop the oscillator
-            self.write_mode1(config.with_high(BitFlagMode1::Sleep))?;
+            self.write_mode1(config.with_high(BitFlagMode1::Sleep))
+                .await?;
         }
 
         self.i2c
             .write(self.address, &[Register::PRE_SCALE, prescale])
+            .await
             .map_err(Error::I2C)?;
 
         if was_oscillator_running {
             // restart the oscillator
-            self.write_mode1(config)?;
+            self.write_mode1(config).await?;
         }
         Ok(())
     }

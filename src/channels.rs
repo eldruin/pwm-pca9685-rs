@@ -1,29 +1,42 @@
-use crate::{hal, Channel, Error, Pca9685, Register};
+use crate::{Channel, Error, Pca9685, Register};
 
+#[cfg(not(feature = "async"))]
+use embedded_hal::i2c::I2c;
+#[cfg(feature = "async")]
+use embedded_hal_async::i2c::I2c as AsyncI2c;
+
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Pca9685",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Set the `ON` counter for the selected channel.
     ///
     /// Note that the full off setting takes precedence over the `on` settings.
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
-    pub fn set_channel_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
+    pub async fn set_channel_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
         let reg = get_register_on(channel);
-        self.write_double_register(reg, value)
+        self.write_double_register(reg, value).await
     }
 
     /// Set the `OFF` counter for the selected channel.
-    pub fn set_channel_off(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
+    pub async fn set_channel_off(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
         let reg = get_register_off(channel);
-        self.write_double_register(reg, value)
+        self.write_double_register(reg, value).await
     }
 
     /// Set the `ON` and `OFF` counters for the selected channel.
@@ -31,7 +44,7 @@ where
     /// Note that the full off setting takes precedence over the `on` settings.
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
-    pub fn set_channel_on_off(
+    pub async fn set_channel_on_off(
         &mut self,
         channel: Channel,
         on: u16,
@@ -41,7 +54,7 @@ where
             return Err(Error::InvalidInputData);
         }
         let reg = get_register_on(channel);
-        self.write_two_double_registers(reg, on, off)
+        self.write_two_double_registers(reg, on, off).await
     }
 
     /// Set the channel always on.
@@ -51,13 +64,17 @@ where
     ///
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
-    pub fn set_channel_full_on(&mut self, channel: Channel, value: u16) -> Result<(), Error<E>> {
+    pub async fn set_channel_full_on(
+        &mut self,
+        channel: Channel,
+        value: u16,
+    ) -> Result<(), Error<E>> {
         if value > 4095 {
             return Err(Error::InvalidInputData);
         }
         let reg = get_register_on(channel);
         let value = value | 0b0001_0000_0000_0000;
-        self.write_double_register(reg, value)
+        self.write_double_register(reg, value).await
     }
 
     /// Set the channel always off.
@@ -67,10 +84,10 @@ where
     ///
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
-    pub fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
+    pub async fn set_channel_full_off(&mut self, channel: Channel) -> Result<(), Error<E>> {
         let reg = get_register_off(channel);
         let value = 0b0001_0000_0000_0000;
-        self.write_double_register(reg, value)
+        self.write_double_register(reg, value).await
     }
 
     /// Set the `ON` and `OFF` counter for each channel at once.
@@ -79,7 +96,11 @@ where
     /// Note that the full off setting takes precedence over the `on` settings.
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
-    pub fn set_all_on_off(&mut self, on: &[u16; 16], off: &[u16; 16]) -> Result<(), Error<E>> {
+    pub async fn set_all_on_off(
+        &mut self,
+        on: &[u16; 16],
+        off: &[u16; 16],
+    ) -> Result<(), Error<E>> {
         let mut data = [0; 65];
         data[0] = Register::C0_ON_L;
         for (i, (on, off)) in on.iter().zip(off).enumerate() {
@@ -91,8 +112,11 @@ where
             data[i * 4 + 3] = *off as u8;
             data[i * 4 + 4] = (*off >> 8) as u8;
         }
-        self.enable_auto_increment()?;
-        self.i2c.write(self.address, &data).map_err(Error::I2C)
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
     }
 }
 
