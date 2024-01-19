@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [stable, 1.62.0]
+        rust: [stable, 1.75.0]
         TARGET:
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
