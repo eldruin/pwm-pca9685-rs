@@ -1,13 +1,13 @@
 use crate::{
     config::{BitFlagMode1, BitFlagMode2, Config},
-    hal::{blocking::delay::DelayUs, blocking::i2c},
+    hal::{delay::DelayNs, i2c},
     Address, DisabledOutputValue, Error, OutputDriver, OutputLogicState, OutputStateChange,
     Pca9685, ProgrammableAddress, Register,
 };
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Create a new instance of the device.
     pub fn new<A: Into<Address>>(i2c: I2C, address: A) -> Result<Self, Error<E>> {
@@ -55,11 +55,11 @@ where
     ///
     /// This includes a delay of 500us in order for the oscillator to stabilize.
     /// If you cannot afford a 500us delay you can use `restart_nonblocking()`.
-    pub fn restart(&mut self, delay: &mut impl DelayUs<u16>) -> Result<(), Error<E>> {
+    pub fn restart(&mut self, delay: &mut impl DelayNs) -> Result<(), Error<E>> {
         let mode1 = self.read_register(Register::MODE1)?;
         if (mode1 & BitFlagMode1::Restart as u8) != 0 {
             self.enable()?;
-            delay.delay_us(500_u16);
+            delay.delay_us(500);
             let previous = self.config;
             let config = previous.with_high(BitFlagMode1::Restart);
             self.write_mode1(config)?;

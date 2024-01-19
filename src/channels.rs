@@ -2,7 +2,7 @@ use crate::{hal, Channel, Error, Pca9685, Register};
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+    I2C: hal::i2c::I2c<Error = E>,
 {
     /// Set the `ON` counter for the selected channel.
     ///

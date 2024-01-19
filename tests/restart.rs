@@ -1,4 +1,4 @@
-use embedded_hal_mock::{delay::MockNoop as DelayMock, i2c::Transaction as I2cTrans};
+use embedded_hal_mock::eh1::{delay::NoopDelay as DelayMock, i2c::Transaction as I2cTrans};
 use pwm_pca9685::ProgrammableAddress as ProgAddr;
 
 mod common;
