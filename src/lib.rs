@@ -255,3 +255,6 @@ pub use crate::types::{
     OutputStateChange, Pca9685, ProgrammableAddress,
 };
 pub use nb;
+
+/// Implementation of sync functionality
+mod blocking;
