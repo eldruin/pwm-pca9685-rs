@@ -1,6 +1,6 @@
 use crate::{
     config::{BitFlagMode1, Config},
-    hal::blocking::i2c,
+    hal::i2c,
     Error, Pca9685,
 };
 
@@ -51,7 +51,7 @@ impl Register {
 
 impl<I2C, E> Pca9685<I2C>
 where
-    I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     pub(crate) fn write_mode2(&mut self, config: Config) -> Result<(), Error<E>> {
         self.i2c
