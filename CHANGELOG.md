@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - [breaking-change] Removed `Default` implementation for `Pca9685` struct.
+- Raised MSRV to 1.62.0.
 
 ## [0.3.1] - 2021-07-14
 

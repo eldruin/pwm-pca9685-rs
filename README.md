@@ -2,7 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/pwm-pca9685.svg)](https://crates.io/crates/pwm-pca9685)
 [![Docs](https://docs.rs/pwm-pca9685/badge.svg)](https://docs.rs/pwm-pca9685)
-![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.34+-blue.svg)
+![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.62+-blue.svg)
 [![Build Status](https://github.com/eldruin/pwm-pca9685-rs/workflows/Build/badge.svg)](https://github.com/eldruin/pwm-pca9685-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/pwm-pca9685-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/pwm-pca9685-rs?branch=master)
 
@@ -112,4 +112,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
-
