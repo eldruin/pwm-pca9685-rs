@@ -1,9 +1,9 @@
 use crate::{hal, Channel, Error, Pca9685, Register};
 
 // Only the 12 low bits of the ON/OFF registers contain the current value.
-static ON_OFF_BITMASK: u16 = 0b0000111111111111;
+const ON_OFF_BITMASK: u16 = 0b0000111111111111;
 // The next bit then contains the overriding "full" state for the register.
-static FULL_ON_OFF_BITMASK: u16 = 0b0001000000000000;
+const FULL_ON_OFF_BITMASK: u16 = 0b0001000000000000;
 
 impl<I2C, E> Pca9685<I2C>
 where
