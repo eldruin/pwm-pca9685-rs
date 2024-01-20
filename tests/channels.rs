@@ -133,6 +133,17 @@ macro_rules! channels_test {
                 }
 
                 #[test]
+                fn can_get_channel_on_min() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_on], vec![0, 0])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert_eq!(pwm.get_channel_on(Channel::$channel).unwrap(), 0);
+                    destroy(pwm);
+                }
+
+                #[test]
 
                 fn can_set_channel_on_max() {
                     let trans = [
@@ -141,6 +152,17 @@ macro_rules! channels_test {
                     ];
                     let mut pwm = new(&trans);
                     pwm.set_channel_on(Channel::$channel, 4095).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+                fn can_get_channel_on_max() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_on], vec![255, 255])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert_eq!(pwm.get_channel_on(Channel::$channel).unwrap(), 4095);
                     destroy(pwm);
                 }
 
@@ -156,6 +178,17 @@ macro_rules! channels_test {
                 }
 
                 #[test]
+                fn can_get_channel_off_min() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_off], vec![0, 0])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert_eq!(pwm.get_channel_off(Channel::$channel).unwrap(), 0);
+                    destroy(pwm);
+                }
+
+                #[test]
                 fn can_set_channel_off_max() {
                     let trans = [
                         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
@@ -163,6 +196,17 @@ macro_rules! channels_test {
                     ];
                     let mut pwm = new(&trans);
                     pwm.set_channel_off(Channel::$channel, 4095).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+                fn can_get_channel_off_max() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_off], vec![255, 255])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert_eq!(pwm.get_channel_off(Channel::$channel).unwrap(), 4095);
                     destroy(pwm);
                 }
 
@@ -191,6 +235,17 @@ macro_rules! channels_test {
                 }
 
                 #[test]
+                fn can_get_channel_full_on() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_on], vec![0, 0b0001_0000])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert!(pwm.get_channel_full_on(Channel::$channel).unwrap());
+                    destroy(pwm);
+                }
+
+                #[test]
 
                 fn can_set_channel_full_off() {
                     let trans = [
@@ -211,6 +266,17 @@ macro_rules! channels_test {
                     ];
                     let mut pwm = new(&trans);
                     pwm.set_channel_on_off(Channel::$channel, 0x102, 0x304).unwrap();
+                    destroy(pwm);
+                }
+
+                #[test]
+                fn can_get_channel_full_off() {
+                    let trans = [
+                        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+                        I2cTrans::write_read(DEV_ADDR, vec![Register::$reg_off], vec![0, 0b0001_0000])
+                    ];
+                    let mut pwm = new(&trans);
+                    assert!(pwm.get_channel_full_off(Channel::$channel).unwrap());
                     destroy(pwm);
                 }
             }
@@ -358,5 +424,48 @@ fn can_set_all_on_off() {
         0x406, 0x407, 0x408,
     ];
     pwm.set_all_on_off(&on, &off).unwrap();
+    destroy(pwm);
+}
+
+#[test]
+fn can_get_all_on_off() {
+    #[rustfmt::skip]
+    let trans = [
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+        I2cTrans::write_read(
+            DEV_ADDR,
+            vec![Register::C0_ON_L],
+            vec![
+                  0,   0, 255, 255,
+                  1,   0,   0,   0,
+                  0,   0,   1,   0,
+                255, 255,   0,   0,
+                  0,   0, 255, 255,
+                  0,   0,   0,   0,
+                  0,   0,   1,   0,
+                  0,   0,   0,   0,
+                255, 255,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+                  0,   0,   0,   0,
+            ],
+        ),
+    ];
+
+    let mut pwm = new(&trans);
+
+    #[rustfmt::skip]
+    assert_eq!(
+        pwm.get_all_on_off().unwrap(),
+        (
+            [   0,    1,    0, 4095,    0,    0,    0,    0, 4095, 0, 0, 0, 0, 0, 0, 0],
+            [4095,    0,    1,    0, 4095,    0,    1,    0,    0, 0, 0, 0, 0, 0, 0, 0]
+        )
+    );
+
     destroy(pwm);
 }

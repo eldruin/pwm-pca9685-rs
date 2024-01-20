@@ -117,4 +117,32 @@ where
             .map_err(Error::I2C)
             .and(Ok(data[0]))
     }
+
+    pub(crate) fn read_double_register(&mut self, address: u8) -> Result<u16, Error<E>> {
+        let mut data = [0; 2];
+
+        self.enable_auto_increment()?;
+        self.i2c
+            .write_read(self.address, &[address], &mut data)
+            .map_err(Error::I2C)?;
+
+        Ok(u16::from_le_bytes(data))
+    }
+
+    pub(crate) fn read_two_double_registers(
+        &mut self,
+        address: u8,
+    ) -> Result<(u16, u16), Error<E>> {
+        let mut data = [0; 4];
+
+        self.enable_auto_increment()?;
+        self.i2c
+            .write_read(self.address, &[address], &mut data)
+            .map_err(Error::I2C)?;
+
+        Ok((
+            u16::from_le_bytes([data[0], data[1]]),
+            u16::from_le_bytes([data[2], data[3]]),
+        ))
+    }
 }
