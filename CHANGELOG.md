@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- Added `Display`, `Error` and `PartialEq` implementations for `Error<E>`
+- Added `Display`, `Error` and common trait implementations for `Error<E>`.
+- Added common trait implementations for types.
 
 ### Changed
 - [breaking-change] Removed `Default` implementation for `Pca9685` struct.

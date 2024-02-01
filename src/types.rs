@@ -19,7 +19,7 @@ pub struct Pca9685<I2C> {
 }
 
 /// All possible errors in this crate
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error<E> {
     /// I²C bus error
     I2C(E),
@@ -41,7 +41,7 @@ impl<E: Display> Display for Error<E> {
 impl<E: std::error::Error> std::error::Error for Error<E> {}
 
 /// Output channel selection
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Channel {
     /// Channel 0
     C0,
@@ -109,7 +109,7 @@ impl_try_from_for_channel!(u16);
 impl_try_from_for_channel!(usize);
 
 /// Output logic state inversion
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OutputLogicState {
     /// Output logic state is not inverted (default).
     ///
@@ -123,7 +123,7 @@ pub enum OutputLogicState {
 }
 
 /// Output state change behavior
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OutputStateChange {
     /// Outputs change on STOP. (default)
     ///
@@ -137,7 +137,7 @@ pub enum OutputStateChange {
 }
 
 /// Output driver configuration
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OutputDriver {
     /// Totem pole configuration (default).
     #[default]
@@ -147,7 +147,7 @@ pub enum OutputDriver {
 }
 
 /// Value set to all outputs when the output drivers are disabled (`OE` = 1).
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DisabledOutputValue {
     /// Set all outputs to 0 (default).
     #[default]
@@ -162,7 +162,7 @@ pub enum DisabledOutputValue {
 }
 
 /// Additional programmable address types (volatile programming)
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ProgrammableAddress {
     /// Subaddress 1
     Subaddress1,
@@ -175,7 +175,7 @@ pub enum ProgrammableAddress {
 }
 
 /// I2C device address
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Address(pub(crate) u8);
 
 /// Default device address
