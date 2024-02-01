@@ -109,11 +109,12 @@ impl_try_from_for_channel!(u16);
 impl_try_from_for_channel!(usize);
 
 /// Output logic state inversion
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum OutputLogicState {
     /// Output logic state is not inverted (default).
     ///
     /// Value to set when external driver is used. Applicable when `OE = 0`.
+    #[default]
     Direct,
     /// Output logic state is inverted.
     ///
@@ -121,18 +122,13 @@ pub enum OutputLogicState {
     Inverted,
 }
 
-impl Default for OutputLogicState {
-    fn default() -> Self {
-        OutputLogicState::Direct
-    }
-}
-
 /// Output state change behavior
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum OutputStateChange {
     /// Outputs change on STOP. (default)
     ///
     /// This will update the outputs all at the same time.
+    #[default]
     OnStop,
     /// Outputs change on ACK.
     ///
@@ -140,31 +136,21 @@ pub enum OutputStateChange {
     OnAck,
 }
 
-impl Default for OutputStateChange {
-    fn default() -> Self {
-        OutputStateChange::OnStop
-    }
-}
-
 /// Output driver configuration
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum OutputDriver {
     /// Totem pole configuration (default).
+    #[default]
     TotemPole,
     /// Open-drain configuration
     OpenDrain,
 }
 
-impl Default for OutputDriver {
-    fn default() -> Self {
-        OutputDriver::TotemPole
-    }
-}
-
 /// Value set to all outputs when the output drivers are disabled (`OE` = 1).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub enum DisabledOutputValue {
     /// Set all outputs to 0 (default).
+    #[default]
     Zero,
     /// Set all outputs to a value dependent on the `OutputDriver` configuration.
     ///
@@ -173,12 +159,6 @@ pub enum DisabledOutputValue {
     OutputDriver,
     /// Set all outputs to high-impedance.
     HighImpedance,
-}
-
-impl Default for DisabledOutputValue {
-    fn default() -> Self {
-        DisabledOutputValue::Zero
-    }
 }
 
 /// Additional programmable address types (volatile programming)
