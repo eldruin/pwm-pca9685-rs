@@ -41,6 +41,11 @@ jobs:
 
       - run: cargo build --target=${{ matrix.TARGET }}
 
+      - run: cargo build --target=${{ matrix.TARGET }} --features="async"
+
+      - run: cargo build --target=${{ matrix.TARGET }} --features="async,std"
+        if: ${{ contains(matrix.TARGET, 'x86_64') }}
+
   checks:
     name: Checks
     runs-on: ubuntu-latest
@@ -68,6 +73,7 @@ jobs:
           components: clippy
 
       - run: cargo clippy --all-targets
+      - run: cargo clippy --all-features # the tests are not adapted to async
 
   test:
     name: Tests
