@@ -284,7 +284,6 @@
 
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
-#![doc(html_root_url = "https://docs.rs/pwm-pca9685/0.3.1")]
 
 mod config;
 mod register_access;
