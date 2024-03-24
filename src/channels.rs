@@ -93,6 +93,14 @@ where
     /// Set the `ON` and `OFF` counter for each channel at once.
     ///
     /// The index of the value in the arrays corresponds to the channel: 0-15.
+    /// The `on` and `off` value for each channel sets the counter value
+    /// (0-4095) for switching the respective channel on and off during each PWM
+    /// cycle. In addition, the 13th bit of an `on` value (i.e. values
+    /// 4096-8191) sets the respective channel to *full on*; the remainder
+    /// of the value defining the switch-on-delay in the initial PWM cycle.
+    /// Similarly, the special value 4096 in the `off` array sets a channel to
+    /// *full off*.
+    ///
     /// Note that the full off setting takes precedence over the `on` settings.
     /// See section 7.3.3 "LED output and PWM control" of the datasheet for
     /// further details.
@@ -104,7 +112,7 @@ where
         let mut data = [0; 65];
         data[0] = Register::C0_ON_L;
         for (i, (on, off)) in on.iter().zip(off).enumerate() {
-            if *on > 4095 || *off > 4095 {
+            if *on > 8191 || *off > 4096 {
                 return Err(Error::InvalidInputData);
             }
             data[i * 4 + 1] = *on as u8;
