@@ -84,7 +84,7 @@ invalid_test!(
 invalid_test!(
     cannot_set_all_on_off_invalid_value_on,
     set_all_on_off,
-    &[4096; 16],
+    &[8192; 16],
     &[0; 16]
 );
 
@@ -92,7 +92,7 @@ invalid_test!(
     cannot_set_all_on_off_invalid_value_off,
     set_all_on_off,
     &[0; 16],
-    &[4096; 16]
+    &[4097; 16]
 );
 
 #[test]
@@ -338,24 +338,25 @@ fn can_set_all_on_off() {
                 6,
                 4,
                 5,
-                2,
+                18,
                 7,
                 4,
                 6,
                 2,
-                8,
-                4,
+                0,
+                16,
             ],
         ),
     ];
     let mut pwm = new(&trans);
+    // 2nd-last channel: full-on with delay, last channel: full-off
     let on = [
         0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x200, 0x201, 0x202, 0x203,
-        0x204, 0x205, 0x206,
+        0x204, 0x1205, 0x206,
     ];
     let off = [
         0x303, 0x304, 0x305, 0x306, 0x307, 0x308, 0x309, 0x400, 0x401, 0x402, 0x403, 0x404, 0x405,
-        0x406, 0x407, 0x408,
+        0x406, 0x407, 0x1000,
     ];
     pwm.set_all_on_off(&on, &off).unwrap();
     destroy(pwm);
