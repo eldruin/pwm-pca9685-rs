@@ -292,7 +292,7 @@ mod channels;
 mod device_impl;
 mod types;
 pub use crate::types::{
-    Address, Channel, DisabledOutputValue, Error, OutputDriver, OutputLogicState,
-    OutputStateChange, Pca9685, ProgrammableAddress,
+    Address, Channel, ChannelOnOffControl, DisabledOutputValue, Error, OutputDriver,
+    OutputLogicState, OutputStateChange, Pca9685, ProgrammableAddress,
 };
 pub use nb;
