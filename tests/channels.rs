@@ -382,6 +382,7 @@ fn can_set_all_on_off() {
 #[test]
 
 fn can_set_all_channels() {
+    const FULL_ON_OFF: u8 = 0b0001_0000;
     let trans = [
         I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
         I2cTrans::write(
@@ -443,15 +444,15 @@ fn can_set_all_channels() {
                 4,
                 2,
                 6,
-                4 + 16,
+                4 | FULL_ON_OFF,
                 5,
-                2 + 16,
+                2 | FULL_ON_OFF,
                 7,
                 4,
                 6,
-                2 + 16,
+                2 | FULL_ON_OFF,
                 8,
-                4 + 16,
+                4 | FULL_ON_OFF,
             ],
         ),
     ];

@@ -131,6 +131,7 @@ where
         &mut self,
         values: &[ChannelOnOffControl; 16],
     ) -> Result<(), Error<E>> {
+        const FULL_ON_OFF: u8 = 0b0001_0000;
         let mut data = [0; 65];
         data[0] = Register::C0_ON_L;
         for (i, channel_value) in values.iter().enumerate() {
@@ -139,10 +140,10 @@ where
             }
             data[i * 4 + 1] = channel_value.on as u8;
             data[i * 4 + 2] =
-                (channel_value.on >> 8) as u8 | (0b0001_0000 * channel_value.full_on as u8);
+                (channel_value.on >> 8) as u8 | (FULL_ON_OFF * channel_value.full_on as u8);
             data[i * 4 + 3] = channel_value.off as u8;
             data[i * 4 + 4] =
-                (channel_value.off >> 8) as u8 | (0b0001_0000 * channel_value.full_off as u8);
+                (channel_value.off >> 8) as u8 | (FULL_ON_OFF * channel_value.full_off as u8);
         }
         self.enable_auto_increment().await?;
         self.i2c
