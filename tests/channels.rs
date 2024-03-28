@@ -1,5 +1,5 @@
 use embedded_hal_mock::eh1::i2c::Transaction as I2cTrans;
-use pwm_pca9685::Channel;
+use pwm_pca9685::{Channel, ChannelOnOffControl};
 use std::convert::TryFrom;
 
 mod common;
@@ -93,6 +93,24 @@ invalid_test!(
     set_all_on_off,
     &[0; 16],
     &[4096; 16]
+);
+
+invalid_test!(
+    cannot_set_all_channels_invalid_value_on,
+    set_all_channels,
+    &[ChannelOnOffControl {
+        on: 4096,
+        ..Default::default()
+    }; 16]
+);
+
+invalid_test!(
+    cannot_set_all_channels_invalid_value_off,
+    set_all_channels,
+    &[ChannelOnOffControl {
+        off: 4096,
+        ..Default::default()
+    }; 16]
 );
 
 #[test]
@@ -358,5 +376,184 @@ fn can_set_all_on_off() {
         0x406, 0x407, 0x408,
     ];
     pwm.set_all_on_off(&on, &off).unwrap();
+    destroy(pwm);
+}
+
+#[test]
+
+fn can_set_all_channels() {
+    const FULL_ON_OFF: u8 = 0b0001_0000;
+    let trans = [
+        I2cTrans::write(DEV_ADDR, vec![Register::MODE1, MODE1_AI]),
+        I2cTrans::write(
+            DEV_ADDR,
+            vec![
+                Register::C0_ON_L,
+                1,
+                1,
+                3,
+                3,
+                2,
+                1,
+                4,
+                3,
+                3,
+                1,
+                5,
+                3,
+                4,
+                1,
+                6,
+                3,
+                5,
+                1,
+                7,
+                3,
+                6,
+                1,
+                8,
+                3,
+                7,
+                1,
+                9,
+                3,
+                8,
+                1,
+                0,
+                4,
+                9,
+                1,
+                1,
+                4,
+                0,
+                2,
+                2,
+                4,
+                1,
+                2,
+                3,
+                4,
+                2,
+                2,
+                4,
+                4,
+                3,
+                2,
+                5,
+                4,
+                4,
+                2,
+                6,
+                4 | FULL_ON_OFF,
+                5,
+                2 | FULL_ON_OFF,
+                7,
+                4,
+                6,
+                2 | FULL_ON_OFF,
+                8,
+                4 | FULL_ON_OFF,
+            ],
+        ),
+    ];
+    let mut pwm = new(&trans);
+    let values = [
+        ChannelOnOffControl {
+            on: 0x101,
+            off: 0x303,
+            ..Default::default()
+        },
+        ChannelOnOffControl {
+            on: 0x102,
+            off: 0x304,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x103,
+            off: 0x305,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x104,
+            off: 0x306,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x105,
+            off: 0x307,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x106,
+            off: 0x308,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x107,
+            off: 0x309,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x108,
+            off: 0x400,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x109,
+            off: 0x401,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x200,
+            off: 0x402,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x201,
+            off: 0x403,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x202,
+            off: 0x404,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x203,
+            off: 0x405,
+            full_on: false,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x204,
+            off: 0x406,
+            full_on: false,
+            full_off: true,
+        },
+        ChannelOnOffControl {
+            on: 0x205,
+            off: 0x407,
+            full_on: true,
+            full_off: false,
+        },
+        ChannelOnOffControl {
+            on: 0x206,
+            off: 0x408,
+            full_on: true,
+            full_off: true,
+        },
+    ];
+    pwm.set_all_channels(&values).unwrap();
     destroy(pwm);
 }
