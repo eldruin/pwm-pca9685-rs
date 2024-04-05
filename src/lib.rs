@@ -9,6 +9,7 @@
 //! - Set the _on_ and _off_ counters for a channel or all of them at once. See: [`set_channel_on_off()`](Pca9685::set_channel_on_off).
 //! - Set a channel to be always on or off. See: [`set_channel_full_on()`](Pca9685::set_channel_full_on).
 //! - Set the _on_ and _off_ counters for each channel at once. See: [`set_all_on_off()`](Pca9685::set_all_on_off).
+//! - Set the _on_ and _off_ counters **and** the always-on/always-off flags for each channel at once. See: [`set_all_channels()`](Pca9685::set_all_channels).
 //! - Set the prescale value. See: [`set_prescale()`](Pca9685::set_prescale).
 //! - Select the output logic state direct or inverted. See: [`set_output_logic_state()`](Pca9685::set_output_logic_state).
 //! - Set when the outputs change. See: [`set_output_change_behavior()`](Pca9685::set_output_change_behavior).
@@ -184,6 +185,24 @@
 //! let mut on = [0; 16];
 //! let mut off = [2047; 16];
 //! pwm.set_all_on_off(&on, &off);
+//! ```
+//!
+//! ### Set all channels to full on, turning on after 50% of the first cycle
+//!
+//! ```no_run
+//! use linux_embedded_hal::I2cdev;
+//! use pwm_pca9685::{Address, ChannelOnOffControl, Pca9685};
+//!
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let address = Address::default();
+//! let mut pwm = Pca9685::new(dev, address).unwrap();
+//! pwm.enable().unwrap();
+//! let values = [ChannelOnOffControl {
+//!     on: 2047,
+//!     full_on: true,
+//!     ..Default::default()
+//! }; 16];
+//! pwm.set_all_channels(&values);
 //! ```
 //!
 //! ### Use a programmable address
