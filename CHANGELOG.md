@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `Display`, `Error` and common trait implementations for `Error<E>`.
 - Added common trait implementations for types.
 - Async support based on `embedded-hal-async` 1.0 behind `async` feature flag.
+- Added `set_all_channels()`.
 
 ### Changed
 - [breaking-change] Removed `Default` implementation for `Pca9685` struct.

@@ -207,6 +207,19 @@ impl From<(bool, bool, bool, bool, bool, bool)> for Address {
     }
 }
 
+/// PWM control values for a single channel
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ChannelOnOffControl {
+    /// Counter value to switch the channel on during each PWM cycle
+    pub on: u16,
+    /// Counter value to switch the channel off during each PWM cycle
+    pub off: u16,
+    /// Set the channel to full-on. In this case, the `off` value is ignored.
+    pub full_on: bool,
+    /// Set the channel to full-off. Takes precedence over `on` an `full_on`.
+    pub full_off: bool,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

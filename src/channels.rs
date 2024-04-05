@@ -1,4 +1,4 @@
-use crate::{Channel, Error, Pca9685, Register};
+use crate::{types::ChannelOnOffControl, Channel, Error, Pca9685, Register};
 
 #[cfg(not(feature = "async"))]
 use embedded_hal::i2c::I2c;
@@ -111,6 +111,39 @@ where
             data[i * 4 + 2] = (*on >> 8) as u8;
             data[i * 4 + 3] = *off as u8;
             data[i * 4 + 4] = (*off >> 8) as u8;
+        }
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
+    }
+
+    /// Set the PWM control registers for each channel at once.
+    ///
+    /// This allows to set all `on` and `off` counter values, as well as the
+    /// full-on and full-off bit in a single I2C transaction.
+    /// The index of the value in the array corresponds to the channel: 0-15.
+    ///
+    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+    /// further details.
+    pub async fn set_all_channels(
+        &mut self,
+        values: &[ChannelOnOffControl; 16],
+    ) -> Result<(), Error<E>> {
+        const FULL_ON_OFF: u8 = 0b0001_0000;
+        let mut data = [0; 65];
+        data[0] = Register::C0_ON_L;
+        for (i, channel_value) in values.iter().enumerate() {
+            if channel_value.on > 4095 || channel_value.off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = channel_value.on as u8;
+            data[i * 4 + 2] =
+                (channel_value.on >> 8) as u8 | (FULL_ON_OFF * channel_value.full_on as u8);
+            data[i * 4 + 3] = channel_value.off as u8;
+            data[i * 4 + 4] =
+                (channel_value.off >> 8) as u8 | (FULL_ON_OFF * channel_value.full_off as u8);
         }
         self.enable_auto_increment().await?;
         self.i2c
