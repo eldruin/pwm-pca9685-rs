@@ -99,7 +99,7 @@ The same settings, but async with the [Embassy](https://embassy.dev/) framework 
 
 ```toml
 # Cargo.toml
-pwm-pca9685 = { version = "0.3.1", features = ["async"] }
+pwm-pca9685 = { version = "1.0.0", features = ["async"] }
 ```
 
 ```rust

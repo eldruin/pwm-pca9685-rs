@@ -261,7 +261,7 @@
 //!
 //! Enable the `async` feature in your `Cargo.toml`:
 //! ```toml
-//! pwm-pca9685 = { version = "0.3.1", features = ["async"] }
+//! pwm-pca9685 = { version = "1.0.0", features = ["async"] }
 //! ```
 //! - Set a PWM frequency of 60 Hz (corresponds to a value of 100 for the
 //!   prescale).
