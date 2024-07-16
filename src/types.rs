@@ -41,7 +41,7 @@ impl<E: Display> Display for Error<E> {
 impl<E: std::error::Error> std::error::Error for Error<E> {}
 
 /// Output channel selection
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Channel {
     /// Channel 0
     C0,
