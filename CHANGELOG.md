@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Added
+- Methods to set the on and off registers of a subset of channels.
+
 ## [1.0.0] - 2024-04-05
 
 ### Added

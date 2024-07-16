@@ -5,6 +5,49 @@ use embedded_hal::i2c::I2c;
 #[cfg(feature = "async")]
 use embedded_hal_async::i2c::I2c as AsyncI2c;
 
+macro_rules! imp_set_channels {
+    ($([$method_name:ident, $array_size:expr, $buffer_size:expr]),+) => {
+    #[maybe_async_cfg::maybe(
+        sync(
+            cfg(not(feature = "async")),
+            self = "Pca9685",
+            idents(AsyncI2c(sync = "I2c"))
+        ),
+        async(feature = "async", keep_self)
+    )]
+    impl<I2C, E> Pca9685<I2C>
+    where
+        I2C: AsyncI2c<Error = E>,
+    {
+        $(
+            /// Set the `ON` and `OFF` counter for each channel at once.
+            ///
+            /// The index of the value in the arrays corresponds to the channel: 0-15.
+            /// Note that the full off setting takes precedence over the `on` settings.
+            /// See section 7.3.3 "LED output and PWM control" of the datasheet for
+            /// further details.
+            ///
+            /// Several versions of this method are available that set a defined set of
+            /// the first number of channels. They are provided for efficiency.
+            pub async fn $method_name(
+                &mut self,
+                on: &[u16; $array_size],
+                off: &[u16; $array_size],
+            ) -> Result<(), Error<E>> {
+                self.set_channels_on_off::<$array_size, $buffer_size>(on, off).await
+            }
+        )+
+    }
+};
+}
+
+imp_set_channels!(
+    [set_all_on_off, 16, 65],
+    [set_first_4_channels_on_off, 4, 17],
+    [set_first_8_channels_on_off, 8, 33],
+    [set_first_12_channels_on_off, 12, 49]
+);
+
 #[maybe_async_cfg::maybe(
     sync(
         cfg(not(feature = "async")),
@@ -90,35 +133,6 @@ where
         self.write_double_register(reg, value).await
     }
 
-    /// Set the `ON` and `OFF` counter for each channel at once.
-    ///
-    /// The index of the value in the arrays corresponds to the channel: 0-15.
-    /// Note that the full off setting takes precedence over the `on` settings.
-    /// See section 7.3.3 "LED output and PWM control" of the datasheet for
-    /// further details.
-    pub async fn set_all_on_off(
-        &mut self,
-        on: &[u16; 16],
-        off: &[u16; 16],
-    ) -> Result<(), Error<E>> {
-        let mut data = [0; 65];
-        data[0] = Register::C0_ON_L;
-        for (i, (on, off)) in on.iter().zip(off).enumerate() {
-            if *on > 4095 || *off > 4095 {
-                return Err(Error::InvalidInputData);
-            }
-            data[i * 4 + 1] = *on as u8;
-            data[i * 4 + 2] = (*on >> 8) as u8;
-            data[i * 4 + 3] = *off as u8;
-            data[i * 4 + 4] = (*off >> 8) as u8;
-        }
-        self.enable_auto_increment().await?;
-        self.i2c
-            .write(self.address, &data)
-            .await
-            .map_err(Error::I2C)
-    }
-
     /// Set the PWM control registers for each channel at once.
     ///
     /// This allows to set all `on` and `off` counter values, as well as the
@@ -144,6 +158,29 @@ where
             data[i * 4 + 3] = channel_value.off as u8;
             data[i * 4 + 4] =
                 (channel_value.off >> 8) as u8 | (FULL_ON_OFF * channel_value.full_off as u8);
+        }
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
+    }
+
+    async fn set_channels_on_off<const N: usize, const M: usize>(
+        &mut self,
+        on: &[u16; N],
+        off: &[u16; N],
+    ) -> Result<(), Error<E>> {
+        let mut data = [0; M];
+        data[0] = Register::C0_ON_L;
+        for (i, (on, off)) in on.iter().zip(off).enumerate() {
+            if *on > 4095 || *off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = *on as u8;
+            data[i * 4 + 2] = (*on >> 8) as u8;
+            data[i * 4 + 3] = *off as u8;
+            data[i * 4 + 4] = (*off >> 8) as u8;
         }
         self.enable_auto_increment().await?;
         self.i2c
