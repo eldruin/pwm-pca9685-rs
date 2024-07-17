@@ -152,6 +152,34 @@ where
             .map_err(Error::I2C)
     }
 
+    /// set_2chs_on_off
+    pub async fn set_2chs_on_off(
+        &mut self,
+        start: Channel,
+        on: &[u16; 2],
+        off: &[u16; 2],
+    ) -> Result<(), Error<E>> {
+        if start > Channel::C14 {
+            return Err(Error::InvalidInputData);
+        }
+        let mut data = [0; 9];
+        data[0] = get_register_on(start);
+        for (i, (on, off)) in on.iter().zip(off).enumerate() {
+            if *on > 4095 || *off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = *on as u8;
+            data[i * 4 + 2] = (*on >> 8) as u8;
+            data[i * 4 + 3] = *off as u8;
+            data[i * 4 + 4] = (*off >> 8) as u8;
+        }
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
+    }
+
     /// set_4chs_on_off
     pub async fn set_4chs_on_off(
         &mut self,
