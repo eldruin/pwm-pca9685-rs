@@ -11,6 +11,7 @@
 //! - Set the _on_ and _off_ counters for each channel at once. See: [`set_all_on_off()`](Pca9685::set_all_on_off).
 //! - Set the _on_ and _off_ counters for a subset of channels at once. See for example: [`set_first_4_channels_on_off()`](Pca9685::set_first_4_channels_on_off).
 //! - Set the _on_ and _off_ counters **and** the always-on/always-off flags for each channel at once. See: [`set_all_channels()`](Pca9685::set_all_channels).
+//! - Set the _on_ and _off_ counters for a subset of channels at once from an arbitrary starting position.[`set_4chs_on_off()`](Pca9685::set_4chs_on_off).
 //! - Set the prescale value. See: [`set_prescale()`](Pca9685::set_prescale).
 //! - Select the output logic state direct or inverted. See: [`set_output_logic_state()`](Pca9685::set_output_logic_state).
 //! - Set when the outputs change. See: [`set_output_change_behavior()`](Pca9685::set_output_change_behavior).

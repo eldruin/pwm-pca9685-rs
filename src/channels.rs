@@ -1,9 +1,34 @@
 use crate::{types::ChannelOnOffControl, Channel, Error, Pca9685, Register};
+use paste::paste;
 
 #[cfg(not(feature = "async"))]
 use embedded_hal::i2c::I2c;
 #[cfg(feature = "async")]
 use embedded_hal_async::i2c::I2c as AsyncI2c;
+
+macro_rules! set_nchs_on_off {
+    ($num:expr) => {
+        paste! {
+            #[maybe_async_cfg::maybe(
+                sync(cfg(not(feature = "async")), keep_self),
+                async(feature = "async", keep_self)
+            )]
+            #[doc = "This function sets the on/off states for " $num " channels."]
+            #[doc = "- `start`: The starting channel."]
+            #[doc = "- `on`: An array of on values."]
+            #[doc = "- `off`: An array of off values."]
+            pub async fn [<set_ $num chs_on_off>](
+                &mut self,
+                start: Channel,
+                on: &[u16; $num],
+                off: &[u16; $num],
+            ) -> Result<(), Error<E>> {
+                const M: usize = 4 * $num + 1;
+                self.set_chs_on_off::<$num, M>(start, on, off)
+            }
+        }
+    };
+}
 
 macro_rules! imp_set_channels {
     ($([$method_name:ident, $array_size:expr, $buffer_size:expr]),+) => {
@@ -173,6 +198,34 @@ where
     ) -> Result<(), Error<E>> {
         let mut data = [0; M];
         data[0] = Register::C0_ON_L;
+        for (i, (on, off)) in on.iter().zip(off).enumerate() {
+            if *on > 4095 || *off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = *on as u8;
+            data[i * 4 + 2] = (*on >> 8) as u8;
+            data[i * 4 + 3] = *off as u8;
+            data[i * 4 + 4] = (*off >> 8) as u8;
+        }
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
+    }
+
+    set_nchs_on_off!(2);
+    set_nchs_on_off!(4);
+    set_nchs_on_off!(8);
+
+    async fn set_chs_on_off<const N: usize, const M: usize>(
+        &mut self,
+        start: Channel,
+        on: &[u16; N],
+        off: &[u16; N],
+    ) -> Result<(), Error<E>> {
+        let mut data = [0; M];
+        data[0] = get_register_on(start);
         for (i, (on, off)) in on.iter().zip(off).enumerate() {
             if *on > 4095 || *off > 4095 {
                 return Err(Error::InvalidInputData);
