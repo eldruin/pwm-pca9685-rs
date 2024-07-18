@@ -23,22 +23,8 @@ macro_rules! set_nchs_on_off {
                 on: &[u16; $num],
                 off: &[u16; $num],
             ) -> Result<(), Error<E>> {
-                let mut data = [0; 1 + $num * 4];
-                data[0] = get_register_on(start);
-                for (i, (on, off)) in on.iter().zip(off).enumerate() {
-                    if *on > 4095 || *off > 4095 {
-                        return Err(Error::InvalidInputData);
-                    }
-                    data[i * 4 + 1] = *on as u8;
-                    data[i * 4 + 2] = (*on >> 8) as u8;
-                    data[i * 4 + 3] = *off as u8;
-                    data[i * 4 + 4] = (*off >> 8) as u8;
-                }
-                self.enable_auto_increment().await?;
-                self.i2c
-                    .write(self.address, &data)
-                    .await
-                    .map_err(Error::I2C)
+                const M: usize = 4 * $num + 1;
+                self.set_chs_on_off::<$num, M>(start, on, off)
             }
         }
     };
@@ -229,8 +215,32 @@ where
     }
 
     set_nchs_on_off!(2);
-
     set_nchs_on_off!(4);
+    set_nchs_on_off!(8);
+
+    async fn set_chs_on_off<const N: usize, const M: usize>(
+        &mut self,
+        start: Channel,
+        on: &[u16; N],
+        off: &[u16; N],
+    ) -> Result<(), Error<E>> {
+        let mut data = [0; M];
+        data[0] = get_register_on(start);
+        for (i, (on, off)) in on.iter().zip(off).enumerate() {
+            if *on > 4095 || *off > 4095 {
+                return Err(Error::InvalidInputData);
+            }
+            data[i * 4 + 1] = *on as u8;
+            data[i * 4 + 2] = (*on >> 8) as u8;
+            data[i * 4 + 3] = *off as u8;
+            data[i * 4 + 4] = (*off >> 8) as u8;
+        }
+        self.enable_auto_increment().await?;
+        self.i2c
+            .write(self.address, &data)
+            .await
+            .map_err(Error::I2C)
+    }
 }
 
 macro_rules! get_register {
