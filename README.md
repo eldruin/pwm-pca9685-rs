@@ -19,6 +19,7 @@ This driver allows you to:
 - Set the _on_ and _off_ counters for a channel or all of them at once. See: `set_channel_on_off()`.
 - Set a channel to be always on or off. See: `set_channel_full_on()`.
 - Set the _on_ and _off_ counters for each channel at once. See: `set_all_on_off()`.
+- Set the _on_ and _off_ counters for a subset of channels at once. See for example: `set_first_4_channels_on_off()`.
 - Set the _on_ and _off_ counters **and** the always-on/always-off flags for
   each channel at once. See: `set_all_channels()`.
 - Set the prescale value. See: `set_prescale()`.
